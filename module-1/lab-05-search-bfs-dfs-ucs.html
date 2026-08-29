@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Lab 05 | Search, BFS, DFS & UCS | 1BAIA103</title>
+<style>
+:root{--bg:#f5f7fb;--card:#fff;--ink:#182235;--muted:#617087;--primary:#174ea6;--soft:#eaf1ff;--line:#d9e2ee}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.65 system-ui,-apple-system,"Segoe UI",sans-serif}.wrap{width:min(1140px,92%);margin:auto}a{color:inherit}
+header{position:sticky;top:0;z-index:20;background:#fffffff5;border-bottom:1px solid var(--line);backdrop-filter:blur(8px)}nav{min-height:66px;display:flex;align-items:center;justify-content:space-between;gap:12px}.brand{text-decoration:none;color:var(--primary);font-weight:850}.brand small{display:block;color:var(--muted);font-size:.7rem;font-weight:500}.links{display:flex;gap:4px;flex-wrap:wrap}.links a{text-decoration:none;padding:8px 10px;border-radius:9px}.links a:hover{background:var(--soft)}.menu{display:none}
+.hero{padding:48px 0 36px;background:linear-gradient(135deg,#edf4ff,#fff 60%,#f1f8f4);border-bottom:1px solid var(--line)}.crumb{color:var(--muted);font-size:.84rem}.eyebrow{color:var(--primary);font-size:.78rem;font-weight:850;letter-spacing:.07em;text-transform:uppercase}h1{font-size:clamp(2rem,4.5vw,3.4rem);line-height:1.1;margin:10px 0}.lead{max-width:900px;color:var(--muted);font-size:1.06rem}.badges{display:flex;gap:7px;flex-wrap:wrap;margin:17px 0}.badge{background:#fff;border:1px solid var(--line);padding:5px 10px;border-radius:999px;font-size:.78rem}
+.btn{display:inline-block;border:1px solid var(--primary);background:var(--primary);color:#fff;border-radius:10px;padding:10px 15px;font-weight:750;text-decoration:none;cursor:pointer}.secondary{background:#fff;color:var(--primary);border-color:var(--line)}
+section{padding:38px 0}.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:21px;box-shadow:0 7px 22px #142d550d}.grid2{display:grid;grid-template-columns:1fr 1fr;gap:15px}.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:13px}.mini{background:#fff;border:1px solid var(--line);border-radius:12px;padding:16px}.mini h3{margin:0 0 6px}.muted{color:var(--muted)}.note{border-left:4px solid var(--primary);background:var(--soft);padding:13px 15px;border-radius:8px}
+table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:11px;border-bottom:1px solid var(--line);vertical-align:top}th{background:#f7f9fc}
+.lab{display:grid;grid-template-columns:330px 1fr;gap:16px}.controls{display:grid;gap:10px}.controls label{font-weight:700;font-size:.9rem}.controls select,.controls input,.controls button{width:100%;padding:10px;border:1px solid var(--line);border-radius:9px;background:#fff;font:inherit}.controls button{background:var(--primary);color:#fff;font-weight:750;cursor:pointer}.output{background:#f8faff;border:1px dashed #b9c9df;border-radius:12px;padding:15px;min-height:150px}
+.graph{position:relative;min-height:300px;border:1px solid var(--line);border-radius:14px;background:#fbfcfe;overflow:hidden;margin-top:12px}.node{position:absolute;width:72px;height:72px;border-radius:50%;border:2px solid var(--primary);background:#fff;display:flex;align-items:center;justify-content:center;font-weight:850;z-index:2}.nA{left:7%;top:43%}.nB{left:30%;top:16%}.nC{left:30%;top:70%}.nD{left:56%;top:16%}.nE{left:56%;top:70%}.nG{right:7%;top:43%}.edge{position:absolute;height:2px;background:#9aa9bb;transform-origin:left center;z-index:1}.eAB{left:13%;top:45%;width:22%;transform:rotate(-31deg)}.eAC{left:13%;top:51%;width:22%;transform:rotate(28deg)}.eBD{left:36%;top:27%;width:24%;transform:rotate(0)}.eBE{left:35%;top:27%;width:45%;transform:rotate(27deg)}.eCD{left:35%;top:72%;width:45%;transform:rotate(-28deg)}.eCE{left:36%;top:72%;width:24%;transform:rotate(0)}.eDG{left:62%;top:27%;width:31%;transform:rotate(31deg)}.eEG{left:62%;top:73%;width:31%;transform:rotate(-31deg)}
+.badgeCost{position:absolute;font-size:.75rem;background:#fff;border:1px solid var(--line);padding:1px 5px;border-radius:5px;z-index:3}.cAB{left:24%;top:29%}.cAC{left:24%;top:62%}.cBD{left:47%;top:12%}.cBE{left:52%;top:43%}.cCD{left:51%;top:55%}.cCE{left:47%;top:77%}.cDG{left:77%;top:28%}.cEG{left:77%;top:67%}
+.sequence{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}.step{background:var(--soft);border:1px solid #c8d8f2;border-radius:8px;padding:7px 10px;font-weight:750}
+.flashcards{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.flash{height:165px;border:0;background:transparent;perspective:900px;cursor:pointer}.inner{position:relative;width:100%;height:100%;transition:transform .5s;transform-style:preserve-3d}.flash.flipped .inner{transform:rotateY(180deg)}.face{position:absolute;inset:0;backface-visibility:hidden;border:1px solid var(--line);border-radius:13px;background:#fff;padding:18px;display:flex;align-items:center;justify-content:center;text-align:center}.back{transform:rotateY(180deg);background:var(--soft)}
+.quiz label{display:block;padding:9px;border:1px solid var(--line);border-radius:8px;margin:6px 0;cursor:pointer}.quiz label:hover{background:var(--soft)}.result{font-weight:750;margin-top:10px}.progress{height:10px;background:#e5ebf3;border-radius:99px;overflow:hidden}.progress span{display:block;height:100%;width:0;background:var(--primary);transition:.3s}
+footer{background:#14233a;color:#dbe5f2;padding:28px 0}.foot{display:flex;justify-content:space-between;gap:15px;flex-wrap:wrap}.small{font-size:.82rem;color:var(--muted)}
+@media(max-width:850px){.grid2,.lab{grid-template-columns:1fr}.grid3,.flashcards{grid-template-columns:1fr 1fr}.links{display:none}.menu{display:block;border:1px solid var(--line);background:#fff;border-radius:8px;padding:8px}}
+@media(max-width:560px){.grid3,.flashcards{grid-template-columns:1fr}.graph{min-height:340px}}
+</style>
+</head>
+<body>
+<header><nav class="wrap">
+<a class="brand" href="../index.html">1BAIA103<small>Introduction to AI &amp; Applications</small></a>
+<button class="menu" id="menu" aria-expanded="false">☰</button>
+<div class="links" id="links"><a href="../index.html">Course Home</a><a href="index.html">Module 1</a><a href="lab-04-agent-environment.html">← Lab 04</a><a href="lab-06-heuristic-search.html">Lab 06 →</a></div>
+</nav></header>
+
+<main>
+<section class="hero"><div class="wrap">
+<div class="crumb"><a href="../index.html">Course Home</a> → <a href="index.html">Module 1</a> → Lab 05</div>
+<div class="eyebrow">Virtual Laboratory 05 · CO1</div>
+<h1>Search, BFS, DFS &amp; Uniform Cost Search</h1>
+<p class="lead">Explore how an AI system searches a state space to find a path to a goal. Compare Breadth-First Search, Depth-First Search and Uniform Cost Search through a working graph simulator.</p>
+<div class="badges"><span class="badge">Beginner</span><span class="badge">30–35 min</span><span class="badge">State Space</span><span class="badge">Uninformed Search</span></div>
+<a class="btn" href="#lab">Start Experiment</a> <a class="btn secondary" href="lab-04-agent-environment.html">← Lab 04</a>
+</div></section>
+
+<section><div class="wrap"><div class="card"><h2>Learning Objectives</h2>
+<div class="grid2"><ul><li>Explain problem-solving agents and state-space search.</li><li>Define initial state, actions, transition model, goal test and path cost.</li><li>Explain uninformed search and the idea of a frontier.</li></ul><ul><li>Understand Breadth-First Search (BFS).</li><li>Understand Depth-First Search (DFS).</li><li>Understand Uniform Cost Search (UCS).</li><li>Compare their behaviour and suitable use cases.</li></ul></div></div></div></section>
+
+<section><div class="wrap"><div class="card"><h2>1. Theory: Problem-Solving Agent</h2>
+<p>A problem-solving agent decides what to do by formulating a goal, formulating a problem and searching for a sequence of actions that reaches a goal state. The search process can be viewed as exploring a <strong>state space</strong>.</p>
+<div class="grid3"><div class="mini"><h3>Initial State</h3><p>The state from which the search begins.</p></div><div class="mini"><h3>Actions</h3><p>Possible operations available from a state.</p></div><div class="mini"><h3>Transition Model</h3><p>Describes the state resulting from applying an action.</p></div><div class="mini"><h3>Goal Test</h3><p>Checks whether a state satisfies the desired goal.</p></div><div class="mini"><h3>Path Cost</h3><p>Numerical cost associated with a path from the initial state.</p></div><div class="mini"><h3>Solution</h3><p>A sequence of actions that reaches a goal state.</p></div></div>
+<div class="note"><strong>Search problem:</strong> Find a sequence of actions that transforms the initial state into a state that passes the goal test.</div>
+</div></div></section>
+
+<section><div class="wrap"><div class="card"><h2>2. Uninformed Search</h2>
+<p>Uninformed, or blind, search does not use additional problem-specific information about how close a state is to the goal. It uses the information supplied by the problem formulation, such as the initial state, actions, transition model and goal test.</p>
+<table><tr><th>Method</th><th>Main idea</th><th>Typical data structure</th><th>Important property</th></tr>
+<tr><td><strong>BFS</strong></td><td>Expand the shallowest unexpanded node first.</td><td>FIFO queue</td><td>Complete; optimal when every step has the same cost.</td></tr>
+<tr><td><strong>DFS</strong></td><td>Expand the deepest unexpanded node first.</td><td>LIFO stack</td><td>Can use little memory, but may go deep down an unproductive branch.</td></tr>
+<tr><td><strong>UCS</strong></td><td>Expand the node with the lowest path cost g(n).</td><td>Priority queue</td><td>Complete and optimal when step costs are positive.</td></tr></table>
+<div class="note"><strong>Key distinction:</strong> BFS is driven by depth, DFS by depth-first exploration order, while UCS is driven by accumulated path cost.</div>
+</div></div></section>
+
+<section><div class="wrap"><div class="card"><h2>3. BFS, DFS and UCS at a Glance</h2>
+<div class="grid3"><div class="mini"><h3>Breadth-First Search</h3><p>Explores level by level. It is useful when shallow solutions are expected and step costs are equal.</p><p><strong>Idea:</strong> oldest frontier node first.</p></div>
+<div class="mini"><h3>Depth-First Search</h3><p>Follows one branch as deeply as possible before backtracking.</p><p><strong>Idea:</strong> newest frontier node first.</p></div>
+<div class="mini"><h3>Uniform Cost Search</h3><p>Always chooses the frontier path with the smallest accumulated cost.</p><p><strong>Idea:</strong> lowest g(n) first.</p></div></div>
+</div></div></section>
+
+<section id="lab"><div class="wrap"><div class="card"><h2>4. Virtual Search Experiment</h2>
+<p class="muted">Use the graph below. Start is <strong>A</strong> and goal is <strong>G</strong>. Edge labels are path costs. Run one algorithm at a time and inspect the expansion order and returned path.</p>
+<div class="lab"><div class="controls">
+<label for="algo">Search algorithm</label><select id="algo"><option value="bfs">Breadth-First Search (BFS)</option><option value="dfs">Depth-First Search (DFS)</option><option value="ucs">Uniform Cost Search (UCS)</option></select>
+<label for="goal">Goal</label><select id="goal"><option value="G">G</option><option value="D">D</option><option value="E">E</option></select>
+<button onclick="runSearch()">Run Search</button><button onclick="stepSearch()" style="background:#fff;color:var(--primary);border:1px solid var(--line)">Run Next Step</button>
+<button onclick="resetSearch()" style="background:#fff;color:var(--primary);border:1px solid var(--line)">Reset</button>
+</div>
+<div><div class="graph" aria-label="Search graph">
+<div class="edge eAB"></div><div class="edge eAC"></div><div class="edge eBD"></div><div class="edge eBE"></div><div class="edge eCD"></div><div class="edge eCE"></div><div class="edge eDG"></div><div class="edge eEG"></div>
+<div class="badgeCost cAB">1</div><div class="badgeCost cAC">4</div><div class="badgeCost cBD">5</div><div class="badgeCost cBE">1</div><div class="badgeCost cCD">1</div><div class="badgeCost cCE">5</div><div class="badgeCost cDG">1</div><div class="badgeCost cEG">1</div>
+<div class="node nA">A</div><div class="node nB">B</div><div class="node nC">C</div><div class="node nD">D</div><div class="node nE">E</div><div class="node nG">G</div>
+</div><div class="output" id="searchOut"><h3>Search Output</h3><p>Run an algorithm to see the result.</p></div></div></div>
+<p class="small">Graph used for the activity: A→B=1, A→C=4, B→D=5, B→E=1, C→D=1, C→E=5, D→G=1, E→G=1. The graph is directed from left to right.</p>
+</div></div></section>
+
+<section><div class="wrap"><div class="card"><h2>5. Observe the Difference</h2>
+<table><tr><th>Question</th><th>What to observe</th></tr>
+<tr><td>Which method reaches a shallow goal first?</td><td>BFS prioritizes shallow depth.</td></tr>
+<tr><td>Which method may follow a deep branch before exploring alternatives?</td><td>DFS.</td></tr>
+<tr><td>Which method notices that A→B→E→G is cheaper than A→C→D→G?</td><td>UCS, because it compares accumulated path costs.</td></tr>
+<tr><td>Why can BFS return a more expensive path?</td><td>With unequal edge costs, BFS minimizes number of edges rather than total cost.</td></tr></table>
+<div class="note"><strong>Important:</strong> “Shortest” can mean fewest steps or lowest total cost. BFS and UCS answer different questions when edge costs differ.</div>
+</div></div></section>
+
+<section><div class="wrap"><div class="card"><h2>6. Manual Trace Challenge</h2>
+<p>Before running the simulator, predict the first few nodes expanded when searching from A to G.</p>
+<div class="grid2"><div class="mini"><h3>BFS</h3><p>Think level by level. The frontier behaves like a queue.</p><p><strong>Prediction:</strong> A → B, C → ...</p></div><div class="mini"><h3>DFS</h3><p>Think deepest first. The exact order depends on the successor ordering.</p><p><strong>Prediction:</strong> A → one child → deeper child → ...</p></div><div class="mini"><h3>UCS</h3><p>Track g(n), the total cost from A to each frontier node.</p><p><strong>Prediction:</strong> A → B(cost 1) → E(cost 2) → ...</p></div><div class="mini"><h3>Question</h3><p>Which algorithm is most appropriate when path costs matter and can differ?</p><p><strong>Answer:</strong> UCS, assuming its conditions are satisfied.</p></div></div>
+</div></div></section>
+
+<section><div class="wrap"><div class="section-head"><h2>7. Flashcards</h2><p class="muted">Click to flip.</p></div><div class="flashcards">
+<button class="flash" onclick="this.classList.toggle('flipped')"><span class="inner"><span class="face">What is a state space?</span><span class="face back">The collection of states reachable through actions from the initial state in a search problem.</span></span></button>
+<button class="flash" onclick="this.classList.toggle('flipped')"><span class="inner"><span class="face">What does BFS expand first?</span><span class="face back">The shallowest unexpanded node, using a FIFO queue.</span></span></button>
+<button class="flash" onclick="this.classList.toggle('flipped')"><span class="inner"><span class="face">What does DFS expand first?</span><span class="face back">The deepest unexpanded node, using a LIFO stack.</span></span></button>
+<button class="flash" onclick="this.classList.toggle('flipped')"><span class="inner"><span class="face">What does UCS minimize?</span><span class="face back">Accumulated path cost g(n), not simply the number of steps.</span></span></button>
+<button class="flash" onclick="this.classList.toggle('flipped')"><span class="inner"><span class="face">When is BFS optimal?</span><span class="face back">When all actions have the same step cost, under the usual search assumptions.</span></span></button>
+<button class="flash" onclick="this.classList.toggle('flipped')"><span class="inner"><span class="face">What is a frontier?</span><span class="face back">The set of generated search nodes that are waiting to be expanded.</span></span></button>
+</div></div></section>
+
+<section><div class="wrap"><div class="card quiz"><h2>8. Quick Quiz</h2>
+<p><b>1.</b> BFS normally uses which structure?</p><label><input type="radio" name="q1" value="a"> FIFO queue</label><label><input type="radio" name="q1" value="b"> LIFO stack</label>
+<p><b>2.</b> DFS normally explores:</p><label><input type="radio" name="q2" value="a"> The deepest available branch first</label><label><input type="radio" name="q2" value="b"> Only the cheapest path</label>
+<p><b>3.</b> UCS selects a node using:</p><label><input type="radio" name="q3" value="a"> Depth only</label><label><input type="radio" name="q3" value="b"> Accumulated path cost</label>
+<p><b>4.</b> With unequal step costs, BFS necessarily finds the lowest-cost solution.</p><label><input type="radio" name="q4" value="a"> True</label><label><input type="radio" name="q4" value="b"> False</label>
+<p><b>5.</b> The goal test checks:</p><label><input type="radio" name="q5" value="a"> Whether the current state satisfies the goal</label><label><input type="radio" name="q5" value="b"> Whether the computer is fast enough</label>
+<button class="btn" onclick="quiz()">Check Quiz</button><div class="result" id="quizResult"></div>
+</div></div></section>
+
+<section><div class="wrap"><div class="card"><h2>9. Reflection &amp; Viva Questions</h2>
+<ol><li>What is a problem-solving agent?</li><li>Explain initial state, actions, transition model and goal test.</li><li>What is a state space?</li><li>Differentiate BFS and DFS.</li><li>Why is BFS not generally optimal when step costs differ?</li><li>How does UCS select a node?</li><li>What is a frontier?</li><li>Give one practical situation where BFS, DFS and UCS could each be useful.</li></ol>
+<div class="note"><strong>Lab conclusion:</strong> Search algorithms differ mainly in how they select the next node from the frontier. BFS prioritizes shallow depth, DFS prioritizes depth-first exploration, and UCS prioritizes accumulated path cost.</div>
+</div></div></section>
+
+<section><div class="wrap"><div class="card"><h2>10. Lab Progress</h2><p><strong id="status">In Progress</strong></p><div class="progress"><span id="bar"></span></div><p class="small">Progress is stored locally in this browser.</p><button class="btn" onclick="complete()">Mark Lab 05 Completed</button> <a class="btn secondary" href="lab-06-heuristic-search.html">Next: Lab 06 →</a></div></div></section>
+</main>
+
+<footer><div class="wrap foot"><div><strong>1BAIA103 · Lab 05</strong><div class="small">Search, BFS, DFS &amp; Uniform Cost Search</div></div><div><a href="../index.html">Course Home</a> · <a href="index.html">Module 1</a> · <a href="lab-04-agent-environment.html">← Previous</a> · <a href="lab-06-heuristic-search.html">Next →</a></div></div></footer>
+
+<script>
+const KEY="1baia103_virtual_lab_progress_v1";
+const edges={A:[["B",1],["C",4]],B:[["D",5],["E",1]],C:[["D",1],["E",5]],D:[["G",1]],E:[["G",1]],G:[]};
+let state={frontier:[],seen:new Set(),parent:{},cost:{A:0},order:[],done:false};
+function getP(){try{return JSON.parse(localStorage.getItem(KEY)||"{}")}catch(e){return{}}}
+function saveP(x){try{localStorage.setItem(KEY,JSON.stringify(x))}catch(e){}}
+function start(){let x=getP();if(x["05"]!=="completed")x["05"]="in-progress";saveP(x);update()}
+function update(){let x=getP(),s=x["05"]||"in-progress";document.getElementById("status").textContent=s==="completed"?"✓ Lab 05 Completed":"In Progress";document.getElementById("bar").style.width=s==="completed"?"100%":"35%"}
+function resetSearch(){state={frontier:["A"],seen:new Set(["A"]),parent:{},cost:{A:0},order:[],done:false};document.getElementById("searchOut").innerHTML="<h3>Search Output</h3><p>Reset. Frontier starts with A.</p>";start()}
+function initSearch(){state={frontier:["A"],seen:new Set(["A"]),parent:{},cost:{A:0},order:[],done:false}}
+function reconstruct(goal){let path=[goal],x=goal;while(state.parent[x]){x=state.parent[x];path.push(x)}return path.reverse()}
+function choose(){let alg=document.getElementById("algo").value;if(alg==="bfs")return state.frontier.shift();if(alg==="dfs")return state.frontier.pop();let best=0;for(let i=1;i<state.frontier.length;i++){if(state.cost[state.frontier[i]]<state.cost[state.frontier[best]])best=i}return state.frontier.splice(best,1)[0]}
+function stepSearch(){
+if(!state.frontier.length&&!state.done)initSearch();
+let goal=document.getElementById("goal").value,alg=document.getElementById("algo").value;
+if(state.done){document.getElementById("searchOut").innerHTML+="<p>Search already finished. Press Reset or Run Search again.</p>";return}
+let n=choose();if(n===undefined)return;
+state.order.push(n);
+if(n===goal){state.done=true;let path=reconstruct(n);let cost=state.cost[n];render("Goal reached.","<strong>Expansion order:</strong> "+state.order.join(" → ")+"<br><strong>Solution path:</strong> "+path.join(" → ")+"<br><strong>Path cost:</strong> "+cost+"<br><strong>Algorithm:</strong> "+alg.toUpperCase());start();return}
+for(const [to,w] of edges[n]){
+let newCost=state.cost[n]+w;
+if(alg==="ucs"){
+if(state.cost[to]===undefined||newCost<state.cost[to]){state.cost[to]=newCost;state.parent[to]=n;if(!state.seen.has(to)){state.seen.add(to);state.frontier.push(to)}}
+}else if(!state.seen.has(to)){state.seen.add(to);state.parent[to]=n;state.cost[to]=newCost;state.frontier.push(to)}
+}
+render("One step completed.","<strong>Expanded:</strong> "+n+"<br><strong>Expansion order:</strong> "+state.order.join(" → ")+"<br><strong>Frontier:</strong> "+state.frontier.join(", ")+"<br><strong>Costs:</strong> "+Object.entries(state.cost).map(x=>x[0]+"="+x[1]).join(", "));
+start()
+}
+function runSearch(){initSearch();while(!state.done&&state.frontier.length)stepSearch();start()}
+function render(title,body){document.getElementById("searchOut").innerHTML="<h3>"+title+"</h3><p>"+body+"</p>"}
+function quiz(){let k={q1:"a",q2:"a",q3:"b",q4:"b",q5:"a"},n=0;for(let q in k){let a=document.querySelector('input[name="'+q+'"]:checked');if(a&&a.value===k[q])n++}document.getElementById("quizResult").textContent="Score: "+n+"/5"+(n===5?" — Excellent!":" — Review the theory and try again.");start()}
+function complete(){let x=getP();x["05"]="completed";saveP(x);update()}
+document.getElementById("menu").onclick=()=>{let b=document.getElementById("menu"),n=document.getElementById("links"),o=b.getAttribute("aria-expanded")==="true";b.setAttribute("aria-expanded",String(!o));n.style.display=o?"none":"flex"};
+resetSearch();update();
+</script>
+</body></html>

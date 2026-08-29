@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Lab 08 | A* Search | 1BAIA103</title>
+<style>
+:root{--bg:#f5f7fb;--card:#fff;--ink:#182235;--muted:#617087;--primary:#174ea6;--soft:#eaf1ff;--line:#d9e2ee}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.65 system-ui,-apple-system,"Segoe UI",sans-serif}.wrap{width:min(1140px,92%);margin:auto}a{color:inherit}
+header{position:sticky;top:0;z-index:20;background:#fffffff5;border-bottom:1px solid var(--line);backdrop-filter:blur(8px)}nav{min-height:66px;display:flex;align-items:center;justify-content:space-between;gap:12px}.brand{text-decoration:none;color:var(--primary);font-weight:850}.brand small{display:block;color:var(--muted);font-size:.7rem;font-weight:500}.links{display:flex;gap:4px;flex-wrap:wrap}.links a{text-decoration:none;padding:8px 10px;border-radius:9px}.links a:hover{background:var(--soft)}.menu{display:none}
+.hero{padding:48px 0 36px;background:linear-gradient(135deg,#edf4ff,#fff 60%,#f1f8f4);border-bottom:1px solid var(--line)}.crumb{color:var(--muted);font-size:.84rem}.eyebrow{color:var(--primary);font-size:.78rem;font-weight:850;letter-spacing:.07em;text-transform:uppercase}h1{font-size:clamp(2rem,4.5vw,3.4rem);line-height:1.1;margin:10px 0}.lead{max-width:900px;color:var(--muted);font-size:1.06rem}.badges{display:flex;gap:7px;flex-wrap:wrap;margin:17px 0}.badge{background:#fff;border:1px solid var(--line);padding:5px 10px;border-radius:999px;font-size:.78rem}
+.btn{display:inline-block;border:1px solid var(--primary);background:var(--primary);color:#fff;border-radius:10px;padding:10px 15px;font-weight:750;text-decoration:none;cursor:pointer}.secondary{background:#fff;color:var(--primary);border-color:var(--line)}
+section{padding:38px 0}.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:21px;box-shadow:0 7px 22px #142d550d}.grid2{display:grid;grid-template-columns:1fr 1fr;gap:15px}.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:13px}.mini{background:#fff;border:1px solid var(--line);border-radius:12px;padding:16px}.mini h3{margin:0 0 6px}.muted{color:var(--muted)}.note{border-left:4px solid var(--primary);background:var(--soft);padding:13px 15px;border-radius:8px}
+table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:11px;border-bottom:1px solid var(--line);vertical-align:top}th{background:#f7f9fc}
+.lab{display:grid;grid-template-columns:310px 1fr;gap:16px}.controls{display:grid;gap:10px}.controls label{font-weight:700;font-size:.9rem}.controls select,.controls input,.controls button{width:100%;padding:10px;border:1px solid var(--line);border-radius:9px;background:#fff;font:inherit}.controls button{background:var(--primary);color:#fff;font-weight:750;cursor:pointer}.output{background:#f8faff;border:1px dashed #b9c9df;border-radius:12px;padding:15px;min-height:150px}
+.graph{position:relative;min-height:340px;border:1px solid var(--line);border-radius:14px;background:#fbfcfe;overflow:hidden}.node{position:absolute;width:68px;height:68px;border-radius:50%;border:2px solid #9aa9bb;background:#fff;display:flex;align-items:center;justify-content:center;font-weight:850;z-index:2}.nS{left:6%;top:43%}.nA{left:30%;top:15%}.nB{left:30%;top:70%}.nC{left:55%;top:15%}.nD{left:55%;top:70%}.nG{right:6%;top:43%}.edge{position:absolute;height:2px;background:#9aa9bb;transform-origin:left center;z-index:1}.eSA{left:12%;top:44%;width:25%;transform:rotate(-30deg)}.eSB{left:12%;top:51%;width:25%;transform:rotate(27deg)}.eAC{left:36%;top:25%;width:24%;transform:rotate(0)}.eAD{left:36%;top:26%;width:44%;transform:rotate(28deg)}.eBC{left:36%;top:72%;width:44%;transform:rotate(-28deg)}.eBD{left:36%;top:73%;width:24%;transform:rotate(0)}.eCG{left:61%;top:27%;width:29%;transform:rotate(28deg)}.eDG{left:61%;top:73%;width:29%;transform:rotate(-28deg)}.cost{position:absolute;font-size:.73rem;background:#fff;border:1px solid var(--line);padding:1px 5px;border-radius:5px;z-index:3}.cSA{left:21%;top:30%}.cSB{left:21%;top:62%}.cAC{left:46%;top:18%}.cAD{left:53%;top:43%}.cBC{left:53%;top:56%}.cBD{left:46%;top:77%}.cCG{left:77%;top:30%}.cDG{left:77%;top:67%}
+.flashcards{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.flash{height:175px;border:0;background:transparent;padding:0;perspective:900px;cursor:pointer;text-align:left}.inner{position:relative;width:100%;height:100%;transition:transform .5s;transform-style:preserve-3d}.flash.flipped .inner{transform:rotateY(180deg)}.face{position:absolute;inset:0;backface-visibility:hidden;border:1px solid var(--line);border-radius:13px;background:#fff;padding:18px;display:flex;align-items:center;justify-content:center;text-align:center}.back{transform:rotateY(180deg);background:var(--soft)}
+.quiz label{display:block;padding:9px;border:1px solid var(--line);border-radius:8px;margin:6px 0;cursor:pointer}.quiz label:hover{background:var(--soft)}.result{font-weight:750;margin-top:10px}.progress{height:10px;background:#e5ebf3;border-radius:99px;overflow:hidden}.progress span{display:block;height:100%;width:0;background:var(--primary);transition:.3s}
+footer{background:#14233a;color:#dbe5f2;padding:28px 0}.foot{display:flex;justify-content:space-between;gap:15px;flex-wrap:wrap}.small{font-size:.82rem;color:var(--muted)}
+@media(max-width:850px){.grid2,.lab{grid-template-columns:1fr}.grid3,.flashcards{grid-template-columns:1fr 1fr}.links{display:none}.menu{display:block;border:1px solid var(--line);background:#fff;border-radius:8px;padding:8px}}
+@media(max-width:560px){.grid3,.flashcards{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header><nav class="wrap">
+<a class="brand" href="../index.html">1BAIA103<small>Introduction to AI &amp; Applications</small></a>
+<button class="menu" id="menu" aria-expanded="false" aria-controls="links">☰</button>
+<div class="links" id="links"><a href="../index.html">Course Home</a><a href="index.html">Module 1</a><a href="lab-07-heuristic-search.html">← Lab 07</a><a href="lab-09-hill-climbing.html">Lab 09 →</a></div>
+</nav></header>
+<main>
+<section class="hero"><div class="wrap"><div class="crumb"><a href="../index.html">Course Home</a> → <a href="index.html">Module 1</a> → Lab 08</div><div class="eyebrow">Virtual Laboratory 08 · CO1</div>
+<h1>A* Search</h1><p class="lead">Combine the cost already spent with a heuristic estimate of the remaining cost. Explore how A* uses <strong>f(n)=g(n)+h(n)</strong> to guide search and why admissible heuristics are important for cost-optimality.</p>
+<div class="badges"><span class="badge">Beginner</span><span class="badge">35–40 min</span><span class="badge">A*</span><span class="badge">g(n)+h(n)</span><span class="badge">Admissibility</span></div>
+<a class="btn" href="#lab">Start Experiment</a> <a class="btn secondary" href="lab-07-heuristic-search.html">← Lab 07</a></div></section>
+
+<section><div class="wrap"><div class="card"><h2>Learning Objectives</h2><div class="grid2"><ul><li>Define g(n), h(n) and f(n).</li><li>Explain how A* combines path cost and heuristic estimate.</li><li>Trace OPEN/CLOSED lists and f-values.</li></ul><ul><li>Explain admissible and consistent heuristics.</li><li>Understand why A* can be cost-optimal.</li><li>Compare A* with UCS and Greedy Best-First Search.</li></ul></div></div></div></section>
+
+<section><div class="wrap"><div class="card"><h2>1. Theory: A* Evaluation Function</h2>
+<p>The supplied Norvig reference defines A* as a best-first search using <strong>f(n)=g(n)+h(n)</strong>, where g(n) is the path cost from the initial state to n and h(n) estimates the cost of the shortest path from n to a goal. Thus f(n) estimates the cost of the best solution that continues through n. fileciteturn13file0</p>
+<div class="grid3"><div class="mini"><h3>g(n)</h3><p>Actual cost accumulated from the start to node n.</p></div><div class="mini"><h3>h(n)</h3><p>Estimated cost from n to a goal.</p></div><div class="mini"><h3>f(n)</h3><p>Total evaluation: <strong>g(n)+h(n)</strong>.</p></div></div>
+<div class="note"><strong>Core rule:</strong> A* expands the frontier node with the lowest f(n).</div>
+</div></div></section>
+
+<section><div class="wrap"><div class="card"><h2>2. Admissible &amp; Consistent Heuristics</h2>
+<p>An <strong>admissible heuristic</strong> never overestimates the true cost to reach a goal; it is therefore optimistic. The supplied reference states that A* is complete and that cost-optimality depends on properties of the heuristic. fileciteturn13file0turn13file1</p>
+<p>A heuristic is <strong>consistent</strong> if for every node n and successor n′, <strong>h(n) ≤ c(n,a,n′)+h(n′)</strong>. The reference notes that every consistent heuristic is admissible, and with a consistent heuristic A* is cost-optimal. fileciteturn13file1</p>
+<table><tr><th>Property</th><th>Meaning</th><th>Why it matters</th></tr><tr><td>Admissible</td><td>Never overestimates remaining goal cost.</td><td>Supports cost-optimal A* under the stated conditions.</td></tr><tr><td>Consistent</td><td>Satisfies the triangle-inequality-style condition.</td><td>Ensures nondecreasing f along paths and supports graph-search optimality.</td></tr></table>
+</div></div></section>
+
+<section><div class="wrap"><div class="card"><h2>3. A* Compared with UCS and Greedy</h2><table><tr><th>Algorithm</th><th>Evaluation</th><th>Focus</th></tr><tr><td>UCS</td><td>g(n)</td><td>Cost already spent.</td></tr><tr><td>Greedy Best-First</td><td>h(n)</td><td>Estimated closeness to goal.</td></tr><tr><td>A*</td><td>g(n)+h(n)</td><td>Cost so far + estimated remaining cost.</td></tr></table>
+<p>The supplied Norvig reference presents UCS as g(n), Greedy as h(n), and A* as g(n)+h(n). fileciteturn13file7</p>
+</div></div></section>
+
+<section id="lab"><div class="wrap"><div class="card"><h2>4. Virtual Experiment: A* Step-by-Step</h2>
+<p class="muted">Start is <strong>S</strong> and goal is <strong>G</strong>. Edge labels are costs and each node has a heuristic. The simulator displays g, h and f values and the OPEN/CLOSED lists.</p>
+<div class="lab"><div class="controls">
+<button onclick="resetAStar()">Reset</button><button onclick="stepAStar()">Next Step</button><button onclick="runAStar()">Run A*</button>
+<label for="hset">Heuristic</label><select id="hset"><option value="good">Admissible heuristic</option><option value="bad">Overestimating heuristic</option></select>
+</div><div><div class="graph">
+<div class="edge eSA"></div><div class="edge eSB"></div><div class="edge eAC"></div><div class="edge eAD"></div><div class="edge eBC"></div><div class="edge eBD"></div><div class="edge eCG"></div><div class="edge eDG"></div>
+<div class="cost cSA">1</div><div class="cost cSB">4</div><div class="cost cAC">2</div><div class="cost cAD">6</div><div class="cost cBC">2</div><div class="cost cBD">1</div><div class="cost cCG">5</div><div class="cost cDG">2</div>
+<div class="node nS">S</div><div class="node nA">A</div><div class="node nB">B</div><div class="node nC">C</div><div class="node nD">D</div><div class="node nG">G</div>
+</div><div class="output" id="astarOut"><h3>A* Output</h3><p>Press <strong>Next Step</strong> or <strong>Run A*</strong>.</p></div></div></div>
+<p class="small">Graph costs: S→A=1, S→B=4, A→C=2, A→D=6, B→C=2, B→D=1, C→G=5, D→G=2. The admissible heuristic is designed not to overestimate the remaining cost on this small graph.</p>
+</div></div></section>
+
+<section><div class="wrap"><div class="card"><h2>5. Manual Calculation</h2><div class="grid3">
+<div class="mini"><h3>At A</h3><p>If g(A)=1 and h(A)=6:</p><p><strong>f(A)=1+6=7</strong></p></div>
+<div class="mini"><h3>At B</h3><p>If g(B)=4 and h(B)=3:</p><p><strong>f(B)=4+3=7</strong></p></div>
+<div class="mini"><h3>At G</h3><p>For a goal, h(G)=0:</p><p><strong>f(G)=g(G)</strong></p></div>
+</div><div class="note">A* does not simply chase the smallest h(n). It balances what has already been paid, g(n), with the estimated remaining cost, h(n).</div></div></div></section>
+
+<section><div class="wrap"><div class="card"><h2>6. Observe Search Contours</h2><p>The supplied reference describes A* search as expanding nodes in increasing f-cost. With a good heuristic, the resulting contours become more focused toward a goal than uniform-cost search contours. fileciteturn13file2</p><div class="grid2"><div class="mini"><h3>UCS</h3><p>Uses g(n), so its expansion pattern is based on accumulated cost from the start.</p></div><div class="mini"><h3>A*</h3><p>Uses g(n)+h(n), allowing domain knowledge to focus search toward promising goal-directed regions.</p></div></div></div></div></section>
+
+<section><div class="wrap"><h2>7. Flashcards</h2><p class="muted">Click any card to flip. These are built with direct JavaScript and work without external libraries.</p><div class="flashcards">
+<button class="flash" type="button" onclick="flipCard(this)" aria-pressed="false"><span class="inner"><span class="face">What is A*?</span><span class="face back">A best-first search that selects nodes using f(n)=g(n)+h(n).</span></span></button>
+<button class="flash" type="button" onclick="flipCard(this)" aria-pressed="false"><span class="inner"><span class="face">What is g(n)?</span><span class="face back">The actual path cost from the initial state to node n.</span></span></button>
+<button class="flash" type="button" onclick="flipCard(this)" aria-pressed="false"><span class="inner"><span class="face">What is h(n)?</span><span class="face back">An estimate of the shortest remaining cost from n to a goal.</span></span></button>
+<button class="flash" type="button" onclick="flipCard(this)" aria-pressed="false"><span class="inner"><span class="face">What is f(n)?</span><span class="face back">The A* evaluation: f(n)=g(n)+h(n).</span></span></button>
+<button class="flash" type="button" onclick="flipCard(this)" aria-pressed="false"><span class="inner"><span class="face">What is an admissible heuristic?</span><span class="face back">A heuristic that never overestimates the true remaining cost to a goal.</span></span></button>
+<button class="flash" type="button" onclick="flipCard(this)" aria-pressed="false"><span class="inner"><span class="face">What is consistency?</span><span class="face back">A heuristic property satisfying h(n) ≤ c(n,a,n′)+h(n′) for every successor n′.</span></span></button>
+</div></div></section>
+
+<section><div class="wrap"><div class="card quiz"><h2>8. Quick Quiz</h2>
+<p><b>1.</b> A* uses:</p><label><input type="radio" name="q1" value="a"> f(n)=g(n)+h(n)</label><label><input type="radio" name="q1" value="b"> f(n)=h(n) only</label>
+<p><b>2.</b> g(n) represents:</p><label><input type="radio" name="q2" value="a"> Cost from start to n</label><label><input type="radio" name="q2" value="b"> Estimated cost from n to goal</label>
+<p><b>3.</b> h(n) represents:</p><label><input type="radio" name="q3" value="a"> An estimate of remaining goal cost</label><label><input type="radio" name="q3" value="b"> Exact cost already spent</label>
+<p><b>4.</b> An admissible heuristic:</p><label><input type="radio" name="q4" value="a"> Never overestimates the true remaining cost</label><label><input type="radio" name="q4" value="b"> Always overestimates it</label>
+<p><b>5.</b> A consistent heuristic is:</p><label><input type="radio" name="q5" value="a"> A stronger property that implies admissibility</label><label><input type="radio" name="q5" value="b"> Unrelated to admissibility</label>
+<button class="btn" onclick="quiz()">Check Quiz</button><div class="result" id="quizResult"></div>
+</div></div></section>
+
+<section><div class="wrap"><div class="card"><h2>9. Reflection &amp; Viva Questions</h2><ol><li>Why does A* combine g(n) and h(n)?</li><li>What happens when h(n)=0 for every node?</li><li>How is A* different from Greedy Best-First Search?</li><li>Define an admissible heuristic.</li><li>Define a consistent heuristic.</li><li>Why can a good heuristic reduce the number of nodes expanded?</li><li>Why does an overestimating heuristic remove the usual optimality guarantee?</li><li>Explain f(n) for a goal state.</li></ol><div class="note"><strong>Lab conclusion:</strong> A* balances actual cost and estimated remaining cost. Under the stated conditions, an admissible heuristic supports cost-optimal search; a consistent heuristic provides an even stronger property for graph search. fileciteturn13file1</div></div></div></section>
+
+<section><div class="wrap"><div class="card"><h2>10. Lab Progress</h2><p><strong id="status">In Progress</strong></p><div class="progress"><span id="bar"></span></div><p class="small">Progress is stored locally in this browser.</p><button class="btn" onclick="complete()">Mark Lab 08 Completed</button> <a class="btn secondary" href="lab-09-hill-climbing.html">Next: Lab 09 →</a></div></div></section>
+</main>
+<footer><div class="wrap foot"><div><strong>1BAIA103 · Lab 08</strong><div class="small">A* Search</div></div><div><a href="../index.html">Course Home</a> · <a href="index.html">Module 1</a> · <a href="lab-07-heuristic-search.html">← Previous</a> · <a href="lab-09-hill-climbing.html">Next →</a></div></div></footer>
+
+<script>
+const KEY="1baia103_virtual_lab_progress_v1";
+const E={S:[["A",1],["B",4]],A:[["C",2],["D",6]],B:[["C",2],["D",1]],C:[["G",5]],D:[["G",2]],G:[]};
+const H={good:{S:6,A:6,B:3,C:5,D:2,G:0},bad:{S:10,A:1,B:8,C:9,D:1,G:0}};
+let st={open:[],closed:[],g:{},parent:{},done:false};
+function getP(){try{return JSON.parse(localStorage.getItem(KEY)||"{}")}catch(e){return{}}}
+function saveP(x){try{localStorage.setItem(KEY,JSON.stringify(x))}catch(e){}}
+function start(){let x=getP();if(x["08"]!=="completed")x["08"]="in-progress";saveP(x);update()}
+function update(){let x=getP(),s=x["08"]||"in-progress";document.getElementById("status").textContent=s==="completed"?"✓ Lab 08 Completed":"In Progress";document.getElementById("bar").style.width=s==="completed"?"100%":"35%"}
+function flipCard(c){c.classList.toggle("flipped");c.setAttribute("aria-pressed",c.classList.contains("flipped")?"true":"false")}
+function Hs(){return H[document.getElementById("hset").value]}
+function resetAStar(){st={open:["S"],closed:[],g:{S:0},parent:{},done:false};document.getElementById("astarOut").innerHTML="<h3>Reset</h3><p>OPEN=[S], CLOSED=[ ], g(S)=0. Select a heuristic and step through A*.</p>";start()}
+function best(){let h=Hs(),bi=0;for(let i=1;i<st.open.length;i++){let fi=st.g[st.open[i]]+h[st.open[i]],fb=st.g[st.open[bi]]+h[st.open[bi]];if(fi<fb)bi=i}return st.open.splice(bi,1)[0]}
+function path(x){let p=[x];while(st.parent[x]){x=st.parent[x];p.push(x)}return p.reverse()}
+function stepAStar(){
+if(st.done)return;
+if(!st.open.length){st.done=true;document.getElementById("astarOut").innerHTML="<h3>Failure</h3><p>OPEN is empty.</p>";return}
+let h=Hs(),n=best();st.closed.push(n);
+if(n==="G"){st.done=true;document.getElementById("astarOut").innerHTML="<h3>Goal Selected</h3><p><strong>Optimality condition:</strong> With the admissible heuristic, the usual A* cost-optimality result applies under the stated assumptions.<br><strong>Path:</strong> "+path(n).join(" → ")+"<br><strong>Cost g(G):</strong> "+st.g[n]+"<br><strong>Expansion order:</strong> "+st.closed.join(" → ")+"<br><strong>OPEN:</strong> ["+st.open.join(", ")+"]<br><strong>CLOSED:</strong> ["+st.closed.join(", ")+"]</p>";start();return}
+for(const [to,c] of E[n]){let ng=st.g[n]+c;if(st.g[to]===undefined||ng<st.g[to]){st.g[to]=ng;st.parent[to]=n;if(!st.closed.includes(to)&&!st.open.includes(to))st.open.push(to)}}
+st.open.sort((a,b)=>(st.g[a]+h[a])-(st.g[b]+h[b]));
+let rows=st.open.map(x=>x+"(g="+st.g[x]+", h="+h[x]+", f="+(st.g[x]+h[x])+")");
+document.getElementById("astarOut").innerHTML="<h3>Step Completed</h3><p><strong>Expanded:</strong> "+n+" (g="+st.g[n]+", h="+h[n]+", f="+(st.g[n]+h[n])+")<br><strong>OPEN:</strong> ["+rows.join(", ")+"]<br><strong>CLOSED:</strong> ["+st.closed.join(", ")+"]<br><strong>Selection rule:</strong> lowest f(n)=g(n)+h(n).</p>";start()
+}
+function runAStar(){resetAStar();while(!st.done&&st.open.length)stepAStar()}
+function quiz(){let k={q1:"a",q2:"a",q3:"a",q4:"a",q5:"a"},n=0;for(let q in k){let a=document.querySelector('input[name="'+q+'"]:checked');if(a&&a.value===k[q])n++}document.getElementById("quizResult").textContent="Score: "+n+"/5"+(n===5?" — Excellent!":" — Review the theory and try again.");start()}
+function complete(){let x=getP();x["08"]="completed";saveP(x);update()}
+document.getElementById("menu").onclick=()=>{let b=document.getElementById("menu"),n=document.getElementById("links"),o=b.getAttribute("aria-expanded")==="true";b.setAttribute("aria-expanded",String(!o));n.style.display=o?"none":"flex"};
+document.getElementById("hset").addEventListener("change",resetAStar);
+resetAStar();update();
+</script>
+</body>
+</html>

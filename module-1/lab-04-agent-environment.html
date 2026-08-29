@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Lab 04 | Agent & Environment | 1BAIA103</title>
+<style>
+:root{--bg:#f5f7fb;--card:#fff;--ink:#182235;--muted:#617087;--primary:#174ea6;--soft:#eaf1ff;--line:#d9e2ee}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.65 system-ui,-apple-system,"Segoe UI",sans-serif}.wrap{width:min(1120px,92%);margin:auto}a{color:inherit}
+header{position:sticky;top:0;z-index:10;background:#fffffff5;border-bottom:1px solid var(--line);backdrop-filter:blur(8px)}nav{min-height:66px;display:flex;align-items:center;justify-content:space-between;gap:12px}.brand{text-decoration:none;color:var(--primary);font-weight:850}.brand small{display:block;color:var(--muted);font-size:.7rem;font-weight:500}.links{display:flex;gap:4px;flex-wrap:wrap}.links a{text-decoration:none;padding:8px 10px;border-radius:9px}.links a:hover{background:var(--soft)}.menu{display:none}
+.hero{padding:48px 0 36px;background:linear-gradient(135deg,#edf4ff,#fff 60%,#f1f8f4);border-bottom:1px solid var(--line)}.crumb{color:var(--muted);font-size:.84rem}.eyebrow{color:var(--primary);font-size:.78rem;font-weight:850;letter-spacing:.07em;text-transform:uppercase}h1{font-size:clamp(2rem,4.5vw,3.4rem);line-height:1.1;margin:10px 0}.lead{max-width:850px;color:var(--muted);font-size:1.06rem}.badges{display:flex;gap:7px;flex-wrap:wrap;margin:17px 0}.badge{background:#fff;border:1px solid var(--line);padding:5px 10px;border-radius:999px;font-size:.78rem}
+.btn{display:inline-block;border:1px solid var(--primary);background:var(--primary);color:#fff;border-radius:10px;padding:10px 15px;font-weight:750;text-decoration:none;cursor:pointer}.secondary{background:#fff;color:var(--primary);border-color:var(--line)}
+section{padding:38px 0}.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:21px;box-shadow:0 7px 22px #142d550d}.grid2{display:grid;grid-template-columns:1fr 1fr;gap:15px}.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:13px}.mini{background:#fff;border:1px solid var(--line);border-radius:12px;padding:16px}.mini h3{margin:0 0 6px}.muted{color:var(--muted)}.note{border-left:4px solid var(--primary);background:var(--soft);padding:13px 15px;border-radius:8px}
+.flow{display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;margin:22px 0}.node{padding:13px 18px;border:1px solid var(--line);background:#fff;border-radius:12px;text-align:center;font-weight:750}.arrow{font-size:1.4rem;color:var(--primary)}
+.peas{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:18px 0}.peas div{padding:18px;text-align:center;border:1px solid var(--line);border-radius:12px;background:#fff}.peas b{font-size:1.5rem;color:var(--primary)}
+table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:11px;border-bottom:1px solid var(--line);vertical-align:top}th{background:#f7f9fc}
+.lab{display:grid;grid-template-columns:1fr 1fr;gap:16px}.controls{display:grid;gap:10px}.controls label{font-weight:700;font-size:.9rem}.controls select,.controls input,.controls button{width:100%;padding:10px;border:1px solid var(--line);border-radius:9px;background:#fff;font:inherit}.controls button{background:var(--primary);color:#fff;font-weight:750;cursor:pointer}.output{background:#f8faff;border:1px dashed #b9c9df;border-radius:12px;padding:15px;min-height:150px}
+.envgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.env{border:1px solid var(--line);border-radius:12px;padding:16px;background:#fff}.env h3{margin:0 0 5px;color:var(--primary)}
+.flashcards{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.flash{height:165px;border:0;background:transparent;perspective:900px;cursor:pointer}.inner{position:relative;width:100%;height:100%;transition:transform .5s;transform-style:preserve-3d}.flash.flipped .inner{transform:rotateY(180deg)}.face{position:absolute;inset:0;backface-visibility:hidden;border:1px solid var(--line);border-radius:13px;background:#fff;padding:18px;display:flex;align-items:center;justify-content:center;text-align:center}.back{transform:rotateY(180deg);background:var(--soft)}
+.quiz label{display:block;padding:9px;border:1px solid var(--line);border-radius:8px;margin:6px 0;cursor:pointer}.quiz label:hover{background:var(--soft)}.result{font-weight:750;margin-top:10px}.progress{height:10px;background:#e5ebf3;border-radius:99px;overflow:hidden}.progress span{display:block;height:100%;width:0;background:var(--primary);transition:.3s}
+footer{background:#14233a;color:#dbe5f2;padding:28px 0}.foot{display:flex;justify-content:space-between;gap:15px;flex-wrap:wrap}.small{font-size:.82rem;color:var(--muted)}
+@media(max-width:850px){.grid2,.lab{grid-template-columns:1fr}.grid3,.flashcards{grid-template-columns:1fr 1fr}.peas{grid-template-columns:1fr 1fr}.links{display:none}.menu{display:block;border:1px solid var(--line);background:#fff;border-radius:8px;padding:8px}}
+@media(max-width:560px){.grid3,.flashcards,.peas,.envgrid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header><nav class="wrap">
+<a class="brand" href="../index.html">1BAIA103<small>Introduction to AI &amp; Applications</small></a>
+<button class="menu" id="menu" aria-expanded="false">☰</button>
+<div class="links" id="links"><a href="../index.html">Course Home</a><a href="index.html">Module 1</a><a href="lab-03-intelligence-comparison.html">← Lab 03</a><a href="lab-05-search-bfs-dfs-ucs.html">Lab 05 →</a></div>
+</nav></header>
+
+<main>
+<section class="hero"><div class="wrap">
+<div class="crumb"><a href="../index.html">Course Home</a> → <a href="index.html">Module 1</a> → Lab 04</div>
+<div class="eyebrow">Virtual Laboratory 04 · CO1</div>
+<h1>Agent &amp; Environment Explorer</h1>
+<p class="lead">Learn how intelligent agents perceive and act, understand rationality, explore agent types and classify task environments. Finish by building PEAS descriptions for real AI problems.</p>
+<div class="badges"><span class="badge">Beginner</span><span class="badge">30 min</span><span class="badge">Agents</span><span class="badge">PEAS</span><span class="badge">Environment Classification</span></div>
+<a class="btn" href="#lab">Start Experiment</a> <a class="btn secondary" href="lab-03-intelligence-comparison.html">← Lab 03</a>
+</div></section>
+
+<section><div class="wrap"><div class="card"><h2>Learning Objectives</h2>
+<div class="grid2"><ul><li>Define an AI agent and explain the agent–environment interaction.</li><li>Explain percept, percept sequence, agent function and behaviour.</li><li>Explain rationality and its four influencing factors.</li><li>Distinguish sensors from actuators/effectors.</li></ul><ul><li>Describe human, robotic and software agents.</li><li>Identify simple reflex, model-based, goal-based, utility-based and learning agents.</li><li>Classify environment properties.</li><li>Construct PEAS descriptions.</li></ul></div></div></div></section>
+
+<section><div class="wrap"><div class="card"><h2>1. Theory: Agent and Environment</h2>
+<p>The supplied Module 1 material explains that AI agents act in an environment, which may include other agents. They perceive the environment using <strong>sensors</strong> and act upon it using <strong>effectors</strong>. fileciteturn10file0</p>
+<div class="flow"><div class="node">Environment</div><div class="arrow">→</div><div class="node">Sensors<br><small>Percepts</small></div><div class="arrow">→</div><div class="node">AI Agent<br><small>Decision</small></div><div class="arrow">→</div><div class="node">Effectors<br><small>Actions</small></div><div class="arrow">→</div><div class="node">Environment</div></div>
+<div class="note"><strong>Core loop:</strong> Perceive → decide → act → observe the changed environment.</div>
+<h3>Key Terminology</h3>
+<table><tr><th>Term</th><th>Meaning</th></tr><tr><td>Performance Measure</td><td>Criterion used to determine how successful an agent is.</td></tr><tr><td>Percept</td><td>Perceptual input received by an agent at a specific instance.</td></tr><tr><td>Percept Sequence</td><td>The list/history of percepts received by the agent.</td></tr><tr><td>Agent Function</td><td>A mapping from a percept sequence to an action.</td></tr><tr><td>Behaviour</td><td>The action performed after receiving a percept/input.</td></tr></table>
+</div></div></section>
+
+<section><div class="wrap"><div class="card"><h2>2. Rationality</h2>
+<p>Rationality is the ability to make responsible and sensible decisions. A rational agent chooses actions intended to maximize its performance using available information. fileciteturn10file4</p>
+<div class="peas"><div><b>P</b><br>Performance<br>Measure</div><div><b>Q</b><br>Percept<br>Sequence</div><div><b>K</b><br>Prior<br>Knowledge</div><div><b>A</b><br>Possible<br>Actions</div></div>
+<ol><li><strong>Performance measure:</strong> how success is evaluated.</li><li><strong>Percept sequence:</strong> information received so far.</li><li><strong>Prior knowledge:</strong> what the agent already knows about its environment.</li><li><strong>Possible actions:</strong> what the agent can do.</li></ol>
+<div class="note"><strong>Important:</strong> Rational does not mean “always successful.” A rational agent selects the action expected to maximize performance based on what it has perceived, knows and can do.</div>
+</div></div></section>
+
+<section><div class="wrap"><div class="card"><h2>3. Structure and Types of Agents</h2>
+<p>The supplied material describes an intelligent agent as <strong>Agent = Architecture + Agent Program</strong>. fileciteturn10file14</p>
+<div class="flow"><div class="node">Sensors</div><div class="arrow">→</div><div class="node">Percepts</div><div class="arrow">→</div><div class="node">Agent Program</div><div class="arrow">→</div><div class="node">Actions</div><div class="arrow">→</div><div class="node">Actuators</div></div>
+<div class="grid3">
+<div class="mini"><h3>Human Agent</h3><p>Sensors include eyes, ears, nose, skin and other sensory organs. Effectors include hands, legs and mouth. fileciteturn10file14</p></div>
+<div class="mini"><h3>Robotic Agent</h3><p>Sensors can include cameras and infrared range finders; effectors include motors and actuators. fileciteturn10file14</p></div>
+<div class="mini"><h3>Software Agent</h3><p>Uses software inputs and produces programmed digital actions, such as writing files, sending information or displaying output. fileciteturn10file16</p></div>
+</div>
+<h3>Five Agent Types</h3>
+<div class="grid3">
+<div class="mini"><h3>1. Simple Reflex</h3><p>Chooses an action based on the current percept. It works best when the relevant state is observable.</p></div>
+<div class="mini"><h3>2. Model-Based Reflex</h3><p>Maintains an internal state to represent aspects of the world that are not directly observable. fileciteturn10file18</p></div>
+<div class="mini"><h3>3. Goal-Based</h3><p>Chooses actions with a goal or desired future state in mind.</p></div>
+<div class="mini"><h3>4. Utility-Based</h3><p>Uses a utility measure to compare desirable outcomes and select among alternatives.</p></div>
+<div class="mini"><h3>5. Learning Agent</h3><p>Improves its behaviour using experience. The supplied course material identifies learning element, critic, performance element and problem generator as its four components.</p></div>
+</div>
+</div></div></section>
+
+<section><div class="wrap"><div class="card"><h2>4. Nature of Task Environments</h2>
+<p>Environment properties influence the design of a suitable agent. The supplied material covers the following dimensions. fileciteturn10file17 fileciteturn10file8</p>
+<div class="envgrid">
+<div class="env"><h3>Fully / Partially Observable</h3><p><strong>Fully observable:</strong> sensors provide the complete relevant state. <strong>Partially observable:</strong> information is incomplete or noisy.</p></div>
+<div class="env"><h3>Single / Multiple Agents</h3><p><strong>Single:</strong> one agent. <strong>Multiple:</strong> more than one agent; interactions can be competitive or cooperative.</p></div>
+<div class="env"><h3>Deterministic / Non-deterministic</h3><p><strong>Deterministic:</strong> next state is determined by current state and actions. <strong>Non-deterministic:</strong> outcomes have uncertainty.</p></div>
+<div class="env"><h3>Episodic / Sequential</h3><p><strong>Episodic:</strong> each episode is independent. <strong>Sequential:</strong> current actions can affect future decisions.</p></div>
+<div class="env"><h3>Static / Dynamic</h3><p><strong>Static:</strong> environment does not change while the agent deliberates. <strong>Dynamic:</strong> it can change while the agent is deciding. Semi-dynamic is an intermediate case.</p></div>
+<div class="env"><h3>Discrete / Continuous</h3><p><strong>Discrete:</strong> distinct states, percepts or actions. <strong>Continuous:</strong> values such as time, location or speed can vary continuously.</p></div>
+<div class="env"><h3>Known / Unknown</h3><p><strong>Known:</strong> outcomes or outcome probabilities for actions are given. <strong>Unknown:</strong> the agent may need to learn how the environment works.</p></div>
+<div class="env"><h3>Accessible / Inaccessible</h3><p><strong>Accessible:</strong> complete and accurate environment information is available through sensing. <strong>Inaccessible:</strong> complete information cannot be obtained.</p></div>
+</div>
+</div></div></section>
+
+<section id="lab"><div class="wrap"><div class="card"><h2>5. Virtual Experiment: Environment Classifier</h2><p class="muted">Choose a scenario and select the environment property that best fits the highlighted feature.</p>
+<div class="lab">
+<div class="controls">
+<label for="scene">Scenario</label>
+<select id="scene">
+<option value="taxi">An automated taxi drives while other vehicles and pedestrians move.</option>
+<option value="chess">A chess-playing agent sees the board and chooses moves against an opponent.</option>
+<option value="vacuum">A vacuum cleaner can sense only whether its current square is dirty.</option>
+<option value="ludo">A ludo agent must deal with random dice outcomes.</option>
+<option value="assembly">A factory system checks each part independently for defects.</option>
+<option value="newgame">An agent can see the whole screen of a new game but does not know the rules.</option>
+</select>
+<label for="prop">Property</label>
+<select id="prop"><option value="">Select...</option><option value="dynamic">Dynamic</option><option value="multi">Multiple agents</option><option value="partial">Partially observable</option><option value="nondet">Non-deterministic</option><option value="episodic">Episodic</option><option value="unknown">Unknown</option></select>
+<button onclick="classify()">Check Answer</button>
+</div>
+<div class="output" id="out"><h3>Experiment Output</h3><p>Choose a scenario and property.</p></div>
+</div></div></div></section>
+
+<section><div class="wrap"><div class="card"><h2>6. PEAS Experiment</h2>
+<p><strong>PEAS</strong> means <strong>Performance measure, Environment, Actuators and Sensors</strong>. It is used to characterize the task environment for an agent. fileciteturn10file4</p>
+<div class="peas"><div><b>P</b><br>Performance Measure</div><div><b>E</b><br>Environment</div><div><b>A</b><br>Actuators</div><div><b>S</b><br>Sensors</div></div>
+<label for="peasCase"><strong>Choose an agent:</strong></label>
+<select id="peasCase" style="width:100%;padding:10px;border:1px solid var(--line);border-radius:9px;margin:10px 0" onchange="peasShow()">
+<option value="taxi">Automated Taxi</option><option value="tutor">Interactive English Tutor</option><option value="robot">Part-Picking Robot</option><option value="medical">Medical Diagnosis System</option>
+</select>
+<div class="output" id="peasOut"></div>
+</div></div></section>
+
+<section><div class="wrap"><div class="section-head"><h2>7. Flashcards</h2><p class="muted">Click to flip.</p></div><div class="flashcards">
+<button class="flash" onclick="this.classList.toggle('flipped')"><span class="inner"><span class="face">What is an agent?</span><span class="face back">An entity that perceives its environment through sensors and acts upon it through actuators/effectors.</span></span></button>
+<button class="flash" onclick="this.classList.toggle('flipped')"><span class="inner"><span class="face">What is a percept?</span><span class="face back">The content an agent's sensors are perceiving at a particular time.</span></span></button>
+<button class="flash" onclick="this.classList.toggle('flipped')"><span class="inner"><span class="face">What does PEAS stand for?</span><span class="face back">Performance measure, Environment, Actuators, Sensors.</span></span></button>
+<button class="flash" onclick="this.classList.toggle('flipped')"><span class="inner"><span class="face">What is partially observable?</span><span class="face back">The agent cannot obtain all relevant state information from its sensors.</span></span></button>
+<button class="flash" onclick="this.classList.toggle('flipped')"><span class="inner"><span class="face">What is a rational agent?</span><span class="face back">An agent that chooses an action expected to maximize its performance based on available information.</span></span></button>
+<button class="flash" onclick="this.classList.toggle('flipped')"><span class="inner"><span class="face">What is a dynamic environment?</span><span class="face back">An environment that can change while the agent is deciding what to do.</span></span></button>
+</div></div></section>
+
+<section><div class="wrap"><div class="card quiz"><h2>8. Quick Quiz</h2>
+<p><b>1.</b> Which component allows an agent to perceive its environment?</p><label><input type="radio" name="q1" value="a"> Sensors</label><label><input type="radio" name="q1" value="b"> Actuators</label>
+<p><b>2.</b> PEAS includes:</p><label><input type="radio" name="q2" value="a"> Performance, Environment, Actuators, Sensors</label><label><input type="radio" name="q2" value="b"> Program, Energy, Algorithm, Storage</label>
+<p><b>3.</b> A chess environment is generally:</p><label><input type="radio" name="q3" value="a"> Single-agent</label><label><input type="radio" name="q3" value="b"> Multiple-agent</label>
+<p><b>4.</b> A system that cannot see the complete relevant state operates in a:</p><label><input type="radio" name="q4" value="a"> Partially observable environment</label><label><input type="radio" name="q4" value="b"> Fully observable environment</label>
+<p><b>5.</b> An environment in which current actions affect future decisions is:</p><label><input type="radio" name="q5" value="a"> Episodic</label><label><input type="radio" name="q5" value="b"> Sequential</label>
+<button class="btn" onclick="quiz()">Check Quiz</button><div class="result" id="quizResult"></div>
+</div></div></section>
+
+<section><div class="wrap"><div class="card"><h2>9. Reflection &amp; Viva Questions</h2>
+<ol><li>Define an AI agent and explain the agent–environment interaction.</li><li>Differentiate percept and percept sequence.</li><li>Explain the four factors affecting rationality.</li><li>Differentiate sensors and actuators with examples.</li><li>Explain any three types of agents.</li><li>What is the difference between fully and partially observable environments?</li><li>Differentiate deterministic and non-deterministic environments.</li><li>What is PEAS? Construct PEAS for a self-driving car.</li></ol>
+<div class="note"><strong>Lab conclusion:</strong> An intelligent agent is designed around how it perceives an environment, what actions it can perform, what it is trying to achieve and what characteristics the environment has.</div>
+</div></div></section>
+
+<section><div class="wrap"><div class="card"><h2>10. Lab Progress</h2><p><strong id="status">In Progress</strong></p><div class="progress"><span id="bar"></span></div><p class="small">Progress is stored locally in this browser.</p><button class="btn" onclick="complete()">Mark Lab 04 Completed</button> <a class="btn secondary" href="lab-05-search-bfs-dfs-ucs.html">Next: Lab 05 →</a></div></div></section>
+</main>
+
+<footer><div class="wrap foot"><div><strong>1BAIA103 · Lab 04</strong><div class="small">Agent &amp; Environment Explorer</div></div><div><a href="../index.html">Course Home</a> · <a href="index.html">Module 1</a> · <a href="lab-03-intelligence-comparison.html">← Previous</a> · <a href="lab-05-search-bfs-dfs-ucs.html">Next →</a></div></div></footer>
+
+<script>
+const KEY="1baia103_virtual_lab_progress_v1";
+function getP(){try{return JSON.parse(localStorage.getItem(KEY)||"{}")}catch(e){return{}}}
+function saveP(x){try{localStorage.setItem(KEY,JSON.stringify(x))}catch(e){}}
+function start(){let x=getP();if(x["04"]!=="completed")x["04"]="in-progress";saveP(x);update()}
+function update(){let x=getP(),s=x["04"]||"in-progress";document.getElementById("status").textContent=s==="completed"?"✓ Lab 04 Completed":"In Progress";document.getElementById("bar").style.width=s==="completed"?"100%":"35%"}
+function complete(){let x=getP();x["04"]="completed";saveP(x);update()}
+const ans={
+taxi:{dynamic:"Correct. The scenario highlights a dynamic environment: other vehicles and pedestrians can change while the agent is deciding.",multi:"Correct. Other vehicles and pedestrians can be treated as other agents when their behaviour affects the taxi's performance.",partial:"A taxi can also be partially observable, but the highlighted feature in this scenario is change during decision-making: dynamic.",nondet:"Taxi driving can be non-deterministic in practice, but the highlighted clue here is the changing environment.",episodic:"Taxi driving is sequential because short-term actions can affect future outcomes.",unknown:"Not the highlighted property."},
+chess:{multi:"Correct. Chess is a multiple-agent environment because an opponent also acts and affects the result.",dynamic:"With a clock, chess can be semi-dynamic; however, the key clue here is the opponent, so multiple-agent is the intended answer.",partial:"The board can be visible while the opponent's future move is unknown; the classification highlighted here is multiple-agent.",nondet:"The game rules determine legal transitions, although the opponent creates uncertainty from the agent's perspective.",episodic:"Chess is sequential: current moves affect future positions.",unknown:"The rules of chess are known to the agent in this example."},
+vacuum:{partial:"Correct. A local dirt sensor cannot tell whether another square contains dirt, so the environment is partially observable.",dynamic:"The classic vacuum example is not primarily identified by change during deliberation.",multi:"The classic vacuum world is a single-agent example.",nondet:"The basic vacuum world can be deterministic; variations can introduce uncertainty.",episodic:"The standard vacuum task is commonly treated as sequential because actions can affect later states.",unknown:"The basic rules can be known."},
+ludo:{nondet:"Correct. Dice rolls create uncertainty, making ludo a non-deterministic environment in the supplied material.",multi:"Ludo can involve multiple players, but the clue specifically points to random dice outcomes.",partial:"The key clue is random outcome, not incomplete sensing.",dynamic:"The defining feature here is uncertainty caused by dice outcomes.",episodic:"Moves can affect later positions, so this is not best described as independent episodes.",unknown:"Random dice outcomes are the highlighted feature."},
+assembly:{episodic:"Correct. In an episodic task, each decision can be made independently of previous decisions; defect inspection is the supplied example.",sequential:"Not the best fit because each part's decision is intended to be independent.",dynamic:"The clue describes independence between episodes rather than environmental change.",multi:"Multiple machines may exist, but that is not the defining clue.",partial:"No incomplete sensing is stated.",unknown:"No learning of the environment's rules is implied."},
+newgame:{unknown:"Correct. The agent can see the whole game screen but does not know how the environment works, illustrating that an environment can be fully observable yet unknown.",partial:"Seeing the whole screen does not imply partial observability; the key issue is that the rules are unknown.",dynamic:"The scenario specifically highlights knowledge, not environmental change.",multi:"No other agent is specified.",nondet:"No uncertain transition mechanism is specified.",episodic:"No episode structure is specified."}
+};
+function classify(){let s=document.getElementById("scene").value,p=document.getElementById("prop").value,o=document.getElementById("out");if(!p){o.innerHTML="<h3>Experiment Output</h3><p>Please select a property.</p>";return}o.innerHTML="<h3>Experiment Output</h3><p>"+(ans[s][p]||"Review the scenario and property definitions.")+"</p>";start()}
+const peas={
+taxi:["Safe, fast, legal and comfortable trip; maximize profits and minimize impact on other road users.","Roads, traffic, police, pedestrians, customers and weather.","Steering, accelerator, brake, signal, horn, display and speech.","Cameras, radar, speedometer, GPS, engine sensors, accelerometer, microphones and touchscreen."],
+tutor:["Student's score on a test.","Students and testing agency.","Display exercises, feedback and speech.","Keyboard entry and voice."],
+robot:["Percentage of parts placed in correct bins.","Conveyor belt with parts and bins.","Jointed arm and hand.","Camera, tactile and joint-angle sensors."],
+medical:["Healthy patient and reduced costs.","Patient, hospital and staff.","Display questions, tests, diagnoses and treatments.","Touchscreen or voice entry of symptoms and findings."]
+};
+function peasShow(){let k=document.getElementById("peasCase").value,v=peas[k];document.getElementById("peasOut").innerHTML="<h3>PEAS Description</h3><p><strong>P — Performance:</strong> "+v[0]+"</p><p><strong>E — Environment:</strong> "+v[1]+"</p><p><strong>A — Actuators:</strong> "+v[2]+"</p><p><strong>S — Sensors:</strong> "+v[3]+"</p>"}
+function quiz(){let k={q1:"a",q2:"a",q3:"b",q4:"a",q5:"b"},n=0;for(let q in k){let a=document.querySelector('input[name="'+q+'"]:checked');if(a&&a.value===k[q])n++}document.getElementById("quizResult").textContent="Score: "+n+"/5"+(n===5?" — Excellent!":" — Review the theory and try again.");start()}
+document.getElementById("menu").onclick=()=>{let b=document.getElementById("menu"),n=document.getElementById("links"),o=b.getAttribute("aria-expanded")==="true";b.setAttribute("aria-expanded",String(!o));n.style.display=o?"none":"flex"};
+start();peasShow();
+</script>
+</body></html>

@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Lab 06 | Depth-Limited & IDDFS | 1BAIA103</title>
+<style>
+:root{--bg:#f5f7fb;--card:#fff;--ink:#182235;--muted:#617087;--primary:#174ea6;--soft:#eaf1ff;--line:#d9e2ee}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.65 system-ui,-apple-system,"Segoe UI",sans-serif}.wrap{width:min(1140px,92%);margin:auto}a{color:inherit}
+header{position:sticky;top:0;z-index:20;background:#fffffff5;border-bottom:1px solid var(--line);backdrop-filter:blur(8px)}nav{min-height:66px;display:flex;align-items:center;justify-content:space-between;gap:12px}.brand{text-decoration:none;color:var(--primary);font-weight:850}.brand small{display:block;color:var(--muted);font-size:.7rem;font-weight:500}.links{display:flex;gap:4px;flex-wrap:wrap}.links a{text-decoration:none;padding:8px 10px;border-radius:9px}.links a:hover{background:var(--soft)}.menu{display:none}
+.hero{padding:48px 0 36px;background:linear-gradient(135deg,#edf4ff,#fff 60%,#f1f8f4);border-bottom:1px solid var(--line)}.crumb{color:var(--muted);font-size:.84rem}.eyebrow{color:var(--primary);font-size:.78rem;font-weight:850;letter-spacing:.07em;text-transform:uppercase}h1{font-size:clamp(2rem,4.5vw,3.4rem);line-height:1.1;margin:10px 0}.lead{max-width:900px;color:var(--muted);font-size:1.06rem}.badges{display:flex;gap:7px;flex-wrap:wrap;margin:17px 0}.badge{background:#fff;border:1px solid var(--line);padding:5px 10px;border-radius:999px;font-size:.78rem}
+.btn{display:inline-block;border:1px solid var(--primary);background:var(--primary);color:#fff;border-radius:10px;padding:10px 15px;font-weight:750;text-decoration:none;cursor:pointer}.secondary{background:#fff;color:var(--primary);border-color:var(--line)}
+section{padding:38px 0}.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:21px;box-shadow:0 7px 22px #142d550d}.grid2{display:grid;grid-template-columns:1fr 1fr;gap:15px}.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:13px}.mini{background:#fff;border:1px solid var(--line);border-radius:12px;padding:16px}.mini h3{margin:0 0 6px}.muted{color:var(--muted)}.note{border-left:4px solid var(--primary);background:var(--soft);padding:13px 15px;border-radius:8px}
+table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:11px;border-bottom:1px solid var(--line);vertical-align:top}th{background:#f7f9fc}
+.lab{display:grid;grid-template-columns:330px 1fr;gap:16px}.controls{display:grid;gap:10px}.controls label{font-weight:700;font-size:.9rem}.controls select,.controls input,.controls button{width:100%;padding:10px;border:1px solid var(--line);border-radius:9px;background:#fff;font:inherit}.controls button{background:var(--primary);color:#fff;font-weight:750;cursor:pointer}.output{background:#f8faff;border:1px dashed #b9c9df;border-radius:12px;padding:15px;min-height:150px}
+.tree{border:1px solid var(--line);border-radius:14px;background:#fbfcfe;padding:20px;overflow:auto}.levels{display:flex;flex-direction:column;align-items:center;gap:12px;min-width:620px}.level{display:flex;justify-content:center;gap:22px}.tnode{min-width:70px;text-align:center;padding:9px 12px;border:2px solid #9aa9bb;background:#fff;border-radius:10px;font-weight:850}.active{border-color:var(--primary);background:var(--soft)}
+.flashcards{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.flash{height:165px;border:0;background:transparent;padding:0;perspective:900px;cursor:pointer;text-align:left}.inner{position:relative;width:100%;height:100%;transition:transform .5s;transform-style:preserve-3d}.flash.flipped .inner{transform:rotateY(180deg)}.face{position:absolute;inset:0;backface-visibility:hidden;border:1px solid var(--line);border-radius:13px;background:#fff;padding:18px;display:flex;align-items:center;justify-content:center;text-align:center}.back{transform:rotateY(180deg);background:var(--soft)}
+.quiz label{display:block;padding:9px;border:1px solid var(--line);border-radius:8px;margin:6px 0;cursor:pointer}.quiz label:hover{background:var(--soft)}.result{font-weight:750;margin-top:10px}.progress{height:10px;background:#e5ebf3;border-radius:99px;overflow:hidden}.progress span{display:block;height:100%;width:0;background:var(--primary);transition:.3s}
+footer{background:#14233a;color:#dbe5f2;padding:28px 0}.foot{display:flex;justify-content:space-between;gap:15px;flex-wrap:wrap}.small{font-size:.82rem;color:var(--muted)}
+@media(max-width:850px){.grid2,.lab{grid-template-columns:1fr}.grid3,.flashcards{grid-template-columns:1fr 1fr}.links{display:none}.menu{display:block;border:1px solid var(--line);background:#fff;border-radius:8px;padding:8px}}
+@media(max-width:560px){.grid3,.flashcards{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header><nav class="wrap">
+<a class="brand" href="../index.html">1BAIA103<small>Introduction to AI &amp; Applications</small></a>
+<button class="menu" id="menu" aria-expanded="false" aria-controls="links">☰</button>
+<div class="links" id="links"><a href="../index.html">Course Home</a><a href="index.html">Module 1</a><a href="lab-05-search-bfs-dfs-ucs.html">← Lab 05</a><a href="lab-07-heuristic-search.html">Lab 07 →</a></div>
+</nav></header>
+<main>
+<section class="hero"><div class="wrap"><div class="crumb"><a href="../index.html">Course Home</a> → <a href="index.html">Module 1</a> → Lab 06</div><div class="eyebrow">Virtual Laboratory 06 · CO1</div>
+<h1>Depth-Limited &amp; Iterative Deepening DFS</h1><p class="lead">Understand how a depth limit prevents DFS from going beyond a chosen depth, and how Iterative Deepening Depth-First Search (IDDFS) repeatedly increases that limit until the goal is found.</p>
+<div class="badges"><span class="badge">Beginner</span><span class="badge">30 min</span><span class="badge">DFS</span><span class="badge">Depth Limit</span><span class="badge">IDDFS</span></div>
+<a class="btn" href="#lab">Start Experiment</a> <a class="btn secondary" href="lab-05-search-bfs-dfs-ucs.html">← Lab 05</a></div></section>
+
+<section><div class="wrap"><div class="card"><h2>Learning Objectives</h2><div class="grid2"><ul><li>Explain why unrestricted DFS can explore unnecessarily deep branches.</li><li>Understand the meaning of a depth limit.</li><li>Distinguish cutoff from failure.</li></ul><ul><li>Explain Iterative Deepening DFS.</li><li>Trace a depth-limited search step by step.</li><li>Compare DLS, DFS, BFS and IDDFS.</li></ul></div></div></div></section>
+
+<section><div class="wrap"><div class="card"><h2>1. Theory: Depth-Limited Search</h2>
+<p>Depth-Limited Search (DLS) is a depth-first search with a fixed depth limit <strong>ℓ</strong>. Nodes at the limit are not expanded further. This prevents a DFS procedure from continuing indefinitely down a deep path.</p>
+<div class="grid3"><div class="mini"><h3>Depth 0</h3><p>Only the initial node is considered.</p></div><div class="mini"><h3>Depth 1</h3><p>The initial node and its immediate successors may be explored.</p></div><div class="mini"><h3>Depth ℓ</h3><p>Nodes at depth ℓ may be tested for the goal but are not expanded beyond the limit.</p></div></div>
+<div class="note"><strong>Cutoff ≠ failure:</strong> A cutoff means the search reached its depth limit before determining whether a deeper solution exists. Failure means the search has exhausted the relevant search space without finding a solution.</div>
+</div></div></section>
+
+<section><div class="wrap"><div class="card"><h2>2. Iterative Deepening DFS (IDDFS)</h2>
+<p>IDDFS combines the depth-first memory behaviour of DLS with repeated increasing depth limits. It first searches with limit 0, then limit 1, then limit 2, and continues until a goal is found.</p>
+<div class="tree"><div class="levels"><div class="level"><div class="tnode">A<br><small>depth 0</small></div></div><div class="level"><div class="tnode">B<br><small>depth 1</small></div><div class="tnode">C<br><small>depth 1</small></div></div><div class="level"><div class="tnode">D<br><small>depth 2</small></div><div class="tnode">E<br><small>depth 2</small></div><div class="tnode">F<br><small>depth 2</small></div><div class="tnode">G ★<br><small>depth 2</small></div></div></div></div>
+<p class="small">In this illustration, IDDFS reaches G when the limit becomes 2.</p>
+<table><tr><th>Iteration</th><th>Depth limit</th><th>What happens</th></tr><tr><td>1</td><td>0</td><td>Search A only; no goal.</td></tr><tr><td>2</td><td>1</td><td>Search A and its children; no goal.</td></tr><tr><td>3</td><td>2</td><td>Search through depth 2 and find G.</td></tr></table>
+</div></div></section>
+
+<section><div class="wrap"><div class="card"><h2>3. DLS vs DFS vs BFS vs IDDFS</h2><table><tr><th>Algorithm</th><th>Selection idea</th><th>Strength</th><th>Limitation</th></tr>
+<tr><td>DFS</td><td>Deepest frontier node first</td><td>Low memory</td><td>Can get trapped in very deep/infinite paths.</td></tr>
+<tr><td>DLS</td><td>DFS up to depth ℓ</td><td>Controls depth</td><td>Can miss a solution deeper than ℓ.</td></tr>
+<tr><td>BFS</td><td>Shallowest node first</td><td>Finds shallow solutions; optimal for equal step costs</td><td>Can require large memory.</td></tr>
+<tr><td>IDDFS</td><td>Repeated DLS with increasing ℓ</td><td>Combines shallow-solution behaviour with DFS-like memory use</td><td>Re-expands nodes across iterations.</td></tr></table>
+<div class="note">The Norvig reference describes the standard search comparison in terms of branching factor <strong>b</strong>, shallowest solution depth <strong>d</strong>, maximum depth <strong>m</strong>, and depth limit <strong>ℓ</strong>. fileciteturn11file2</div>
+</div></div></section>
+
+<section id="lab"><div class="wrap"><div class="card"><h2>4. Virtual Experiment: Depth-Limited Search</h2>
+<p class="muted">Use the tree below. Start is A and goal is G. Change the limit and observe whether the result is <strong>Found</strong>, <strong>Cutoff</strong>, or <strong>Failure</strong>.</p>
+<div class="lab"><div class="controls"><label for="limit">Depth limit</label><input id="limit" type="number" min="0" max="5" value="1"><button onclick="runDLS()">Run DLS</button><button onclick="stepDLS()" style="background:#fff;color:var(--primary);border:1px solid var(--line)">Next Step</button><button onclick="resetDLS()" style="background:#fff;color:var(--primary);border:1px solid var(--line)">Reset</button></div>
+<div><div class="tree"><div class="levels" id="tree"></div></div><div class="output" id="dlsOut"><h3>Experiment Output</h3><p>Choose a depth limit and run the experiment.</p></div></div></div>
+</div></div></section>
+
+<section><div class="wrap"><div class="card"><h2>5. Virtual Experiment: IDDFS</h2><p class="muted">Run iterative deepening. The simulator starts at limit 0 and increases the limit until it finds G.</p>
+<div class="lab"><div class="controls"><button onclick="runIDDFS()">Run IDDFS</button><button onclick="stepIDDFS()" style="background:#fff;color:var(--primary);border:1px solid var(--line)">Next Iteration</button><button onclick="resetIDDFS()" style="background:#fff;color:var(--primary);border:1px solid var(--line)">Reset</button></div>
+<div class="output" id="iddfsOut"><h3>IDDFS Output</h3><p>Run the experiment to see each depth limit.</p></div></div></div></div></section>
+
+<section><div class="wrap"><div class="card"><h2>6. Why Use IDDFS?</h2><div class="grid2"><div><h3>Advantages</h3><ul><li>Uses much less memory than BFS in typical tree-search settings.</li><li>Can find a shallow solution without committing permanently to one deep branch.</li><li>The increasing limit makes the search systematic.</li></ul></div><div><h3>Trade-off</h3><ul><li>Nodes near the top can be generated more than once.</li><li>Choosing a single DLS limit is difficult when the solution depth is unknown.</li><li>Performance depends on the search-space structure and repeated work.</li></ul></div></div></div></div></section>
+
+<section><div class="wrap"><h2>7. Flashcards</h2><p class="muted">Click any card. The cards use a button-based flip interaction and work without external libraries.</p><div class="flashcards">
+<button class="flash" type="button" aria-label="Flip card: DLS" onclick="flipCard(this)"><span class="inner"><span class="face">What is DLS?</span><span class="face back">Depth-Limited Search is DFS with a fixed maximum depth.</span></span></button>
+<button class="flash" type="button" aria-label="Flip card: cutoff" onclick="flipCard(this)"><span class="inner"><span class="face">What is a cutoff?</span><span class="face back">A search result indicating that the depth limit prevented further exploration.</span></span></button>
+<button class="flash" type="button" aria-label="Flip card: IDDFS" onclick="flipCard(this)"><span class="inner"><span class="face">What is IDDFS?</span><span class="face back">Repeated depth-limited DFS with limits 0, 1, 2, ... until the goal is found.</span></span></button>
+<button class="flash" type="button" aria-label="Flip card: memory" onclick="flipCard(this)"><span class="inner"><span class="face">Why is IDDFS memory-friendly?</span><span class="face back">It performs depth-first searches, so it does not retain an entire breadth frontier.</span></span></button>
+<button class="flash" type="button" aria-label="Flip card: limitation" onclick="flipCard(this)"><span class="inner"><span class="face">What is a DLS limitation?</span><span class="face back">A solution deeper than the chosen limit will not be reached in that iteration.</span></span></button>
+<button class="flash" type="button" aria-label="Flip card: re-expansion" onclick="flipCard(this)"><span class="inner"><span class="face">What is the IDDFS trade-off?</span><span class="face back">Nodes can be re-expanded when the depth limit increases.</span></span></button>
+</div></div></section>
+
+<section><div class="wrap"><div class="card quiz"><h2>8. Quick Quiz</h2>
+<p><b>1.</b> DLS is essentially:</p><label><input type="radio" name="q1" value="a"> DFS with a depth limit</label><label><input type="radio" name="q1" value="b"> UCS with a cost limit</label>
+<p><b>2.</b> If a solution is deeper than the DLS limit, the search may return:</p><label><input type="radio" name="q2" value="a"> Cutoff</label><label><input type="radio" name="q2" value="b"> Guaranteed success</label>
+<p><b>3.</b> IDDFS increases its depth limit:</p><label><input type="radio" name="q3" value="a"> Repeatedly</label><label><input type="radio" name="q3" value="b"> Never</label>
+<p><b>4.</b> IDDFS can re-expand nodes:</p><label><input type="radio" name="q4" value="a"> True</label><label><input type="radio" name="q4" value="b"> False</label>
+<p><b>5.</b> A major reason to use a depth limit is to:</p><label><input type="radio" name="q5" value="a"> Prevent exploration beyond a chosen depth</label><label><input type="radio" name="q5" value="b"> Guarantee the cheapest path regardless of costs</label>
+<button class="btn" onclick="quiz()">Check Quiz</button><div class="result" id="quizResult"></div></div></div></section>
+
+<section><div class="wrap"><div class="card"><h2>9. Reflection &amp; Viva Questions</h2><ol><li>What problem does Depth-Limited Search address?</li><li>Differentiate cutoff and failure.</li><li>Why can DLS miss a solution?</li><li>Explain the steps of IDDFS.</li><li>Why does IDDFS repeat work?</li><li>Compare IDDFS with BFS in terms of memory and shallow solutions.</li><li>What do b, d, m and ℓ represent in search analysis?</li><li>When would you choose DLS instead of IDDFS?</li></ol><div class="note"><strong>Lab conclusion:</strong> DLS controls DFS with a depth boundary. IDDFS removes the need to guess the final depth by progressively increasing the boundary until a solution is found.</div></div></div></section>
+
+<section><div class="wrap"><div class="card"><h2>10. Lab Progress</h2><p><strong id="status">In Progress</strong></p><div class="progress"><span id="bar"></span></div><p class="small">Progress is stored locally in this browser.</p><button class="btn" onclick="complete()">Mark Lab 06 Completed</button> <a class="btn secondary" href="lab-07-heuristic-search.html">Next: Lab 07 →</a></div></div></section>
+</main>
+<footer><div class="wrap foot"><div><strong>1BAIA103 · Lab 06</strong><div class="small">Depth-Limited &amp; IDDFS</div></div><div><a href="../index.html">Course Home</a> · <a href="index.html">Module 1</a> · <a href="lab-05-search-bfs-dfs-ucs.html">← Previous</a> · <a href="lab-07-heuristic-search.html">Next →</a></div></div></footer>
+<script>
+const KEY="1baia103_virtual_lab_progress_v1";
+const tree={A:["B","C"],B:["D","E"],C:["F","G"],D:[],E:[],F:[],G:[]};
+let dls={limit:1,stack:["A"],visited:[],done:false};
+let iddfs={limit:0,done:false};
+function getP(){try{return JSON.parse(localStorage.getItem(KEY)||"{}")}catch(e){return{}}}
+function saveP(x){try{localStorage.setItem(KEY,JSON.stringify(x))}catch(e){}}
+function start(){let x=getP();if(x["06"]!=="completed")x["06"]="in-progress";saveP(x);update()}
+function update(){let x=getP(),s=x["06"]||"in-progress";document.getElementById("status").textContent=s==="completed"?"✓ Lab 06 Completed":"In Progress";document.getElementById("bar").style.width=s==="completed"?"100%":"35%"}
+function flipCard(el){el.classList.toggle("flipped");el.setAttribute("aria-pressed",el.classList.contains("flipped"))}
+function renderTree(active=[]){let levels=[["A"],["B","C"],["D","E","F","G"]];document.getElementById("tree").innerHTML=levels.map((l,i)=>'<div class="level">'+l.map(n=>'<div class="tnode '+(active.includes(n)?"active":"")+'">'+n+(n==="G"?" ★":"")+'<br><small>depth '+i+'</small></div>').join("")+"</div>").join("")}
+function resetDLS(){let l=Math.max(0,Math.min(5,Number(document.getElementById("limit").value)||0));dls={limit:l,stack:["A"],visited:[],done:false};renderTree();document.getElementById("dlsOut").innerHTML="<h3>DLS Reset</h3><p>Depth limit = "+l+". Press Next Step or Run DLS.</p>";start()}
+function stepDLS(){
+if(dls.done)return;
+let n=dls.stack.pop();if(n===undefined){dls.done=true;document.getElementById("dlsOut").innerHTML="<h3>Failure</h3><p>The search exhausted the available nodes within the limit.</p>";return}
+let depth=dls.pathDepth&&dls.pathDepth[n]!==undefined?dls.pathDepth[n]:(dls.pathDepth={A:0})[n];
+if(n==="G"){dls.done=true;renderTree(dls.visited.concat(["G"]));document.getElementById("dlsOut").innerHTML="<h3>Goal Found</h3><p>Expansion/visit order: <strong>"+dls.visited.concat(["G"]).join(" → ")+"</strong>. Goal G is at depth 2.</p>";start();return}
+dls.visited.push(n);
+if(depth<dls.limit){let ch=tree[n]||[];for(let i=ch.length-1;i>=0;i--){dls.stack.push(ch[i]);dls.pathDepth[ch[i]]=depth+1}}
+renderTree(dls.visited);
+if(!dls.stack.length&&dls.limit<2){dls.done=true;document.getElementById("dlsOut").innerHTML="<h3>Cutoff</h3><p>The frontier cannot continue because the selected depth limit ("+dls.limit+") was reached. Try limit 2 or higher.</p>"}else document.getElementById("dlsOut").innerHTML="<h3>Step completed</h3><p><strong>Visited:</strong> "+dls.visited.join(" → ")+"<br><strong>Frontier:</strong> "+dls.stack.join(", ")+"<br><strong>Limit:</strong> "+dls.limit+"</p>";
+start()
+}
+function runDLS(){resetDLS();while(!dls.done&&dls.stack.length)stepDLS();start()}
+function dlsRun(limit){let stack=[["A",0]],seen=[];while(stack.length){let [n,d]=stack.pop();seen.push(n);if(n==="G")return {result:"found",order:seen};if(d<limit){let ch=tree[n]||[];for(let i=ch.length-1;i>=0;i--)stack.push([ch[i],d+1])}}return {result:limit<2?"cutoff":"failure",order:seen}}
+function resetIDDFS(){iddfs={limit:0,done:false};document.getElementById("iddfsOut").innerHTML="<h3>IDDFS Reset</h3><p>Next iteration starts with depth limit 0.</p>";start()}
+function stepIDDFS(){if(iddfs.done)return;let r=dlsRun(iddfs.limit);let msg=r.result==="found"?"<strong>Goal found!</strong>":r.result==="cutoff"?"Cutoff at this limit.":"No solution at this limit.";document.getElementById("iddfsOut").innerHTML="<h3>Iteration: limit "+iddfs.limit+"</h3><p>"+msg+"<br><strong>Visit order:</strong> "+r.order.join(" → ")+"</p>";if(r.result==="found"){iddfs.done=true;start();return}iddfs.limit++;start()}
+function runIDDFS(){resetIDDFS();while(!iddfs.done)stepIDDFS()}
+function quiz(){let k={q1:"a",q2:"a",q3:"a",q4:"a",q5:"a"},n=0;for(let q in k){let a=document.querySelector('input[name="'+q+'"]:checked');if(a&&a.value===k[q])n++}document.getElementById("quizResult").textContent="Score: "+n+"/5"+(n===5?" — Excellent!":" — Review the theory and try again.");start()}
+function complete(){let x=getP();x["06"]="completed";saveP(x);update()}
+document.getElementById("menu").onclick=()=>{let b=document.getElementById("menu"),n=document.getElementById("links"),o=b.getAttribute("aria-expanded")==="true";b.setAttribute("aria-expanded",String(!o));n.style.display=o?"none":"flex"};
+resetDLS();resetIDDFS();renderTree();update();
+</script>
+</body></html>
