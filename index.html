@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="1BAIA103 Introduction to AI and Applications - Virtual Laboratory">
+<title>1BAIA103 | Introduction to AI & Applications</title>
+<style>
+:root{
+  --bg:#f5f7fb;--surface:#fff;--surface2:#eef3fb;--text:#182235;--muted:#5e6b80;
+  --primary:#174ea6;--primary2:#0b3d91;--accent:#e8f0ff;--border:#dbe2ee;
+  --success:#176b3a;--warning:#8a5a00;--shadow:0 10px 30px rgba(30,50,90,.08);
+  --radius:18px;--max:1180px;
+}
+*{box-sizing:border-box}html{scroll-behavior:smooth}
+body{margin:0;font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  color:var(--text);background:var(--bg);line-height:1.6}
+a{color:inherit}.container{width:min(var(--max),92%);margin:auto}
+header{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.96);backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--border)}
+.nav{min-height:68px;display:flex;align-items:center;justify-content:space-between;gap:20px}
+.brand{font-weight:800;text-decoration:none;color:var(--primary);letter-spacing:.2px}
+.brand small{display:block;color:var(--muted);font-weight:500;font-size:.72rem}
+.navlinks{display:flex;gap:6px;align-items:center}.navlinks a{padding:9px 12px;text-decoration:none;border-radius:10px}
+.navlinks a:hover,.navlinks a:focus{background:var(--surface2);outline:none}
+.menu{display:none;border:1px solid var(--border);background:var(--surface);padding:9px 12px;border-radius:10px;font-size:1.2rem}
+.hero{padding:72px 0 42px;background:linear-gradient(135deg,#edf4ff 0%,#fff 55%,#eef8f5 100%)}
+.hero-grid{display:grid;grid-template-columns:1.35fr .65fr;gap:42px;align-items:center}
+.eyebrow{display:inline-flex;gap:8px;align-items:center;background:var(--accent);color:var(--primary);
+  padding:6px 11px;border-radius:999px;font-weight:700;font-size:.84rem}
+h1{font-size:clamp(2.2rem,5vw,4.1rem);line-height:1.06;margin:18px 0}
+.lead{font-size:1.12rem;color:var(--muted);max-width:760px}
+.actions{display:flex;flex-wrap:wrap;gap:12px;margin:26px 0}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:11px 17px;border-radius:11px;
+  text-decoration:none;border:1px solid var(--primary);font-weight:700;cursor:pointer;background:var(--primary);color:#fff}
+.btn.secondary{background:#fff;color:var(--primary);border-color:var(--border)}
+.btn:focus,.filter:focus,input:focus,select:focus{outline:3px solid rgba(23,78,166,.2);outline-offset:2px}
+.hero-card{background:#fff;border:1px solid var(--border);border-radius:24px;padding:26px;box-shadow:var(--shadow)}
+.hero-card .number{font-size:4rem;font-weight:850;color:var(--primary);line-height:1}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:22px}
+.stat{background:#fff;border:1px solid var(--border);border-radius:14px;padding:15px}
+.stat strong{display:block;font-size:1.35rem}.stat span{font-size:.86rem;color:var(--muted)}
+section{padding:62px 0}.section-head{display:flex;justify-content:space-between;gap:20px;align-items:end;margin-bottom:26px}
+.section-head h2{font-size:2rem;margin:0}.section-head p{color:var(--muted);margin:4px 0 0}
+.flow{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}
+.step,.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;box-shadow:0 5px 18px rgba(30,50,90,.04)}
+.step b{display:inline-grid;place-items:center;width:34px;height:34px;border-radius:50%;background:var(--primary);color:#fff}
+.step h3{margin:12px 0 5px}.muted{color:var(--muted)}
+.continue{display:grid;grid-template-columns:1fr auto;gap:20px;align-items:center;background:#142d55;color:#fff;border-radius:24px;padding:28px}
+.continue .muted{color:#d6e0ef}.continue .btn{background:#fff;color:#142d55;border-color:#fff}
+.module-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:18px}
+.module-card{position:relative}.module-no{font-size:.78rem;font-weight:800;color:var(--primary);letter-spacing:.08em}
+.module-card h3{font-size:1.35rem;margin:5px 0}.chips{display:flex;flex-wrap:wrap;gap:7px;margin:14px 0}
+.chip{background:var(--surface2);border-radius:999px;padding:4px 9px;font-size:.78rem;color:#42516a}
+.progressbar{height:9px;background:#e6ebf3;border-radius:99px;overflow:hidden}.progressbar span{display:block;height:100%;background:var(--primary);width:0}
+.module-footer{display:flex;justify-content:space-between;align-items:center;margin-top:14px;font-size:.88rem}
+.toolbar{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:10px;margin-bottom:20px}
+input,.filter{width:100%;padding:11px 12px;border:1px solid var(--border);border-radius:10px;background:#fff;color:var(--text)}
+.lab-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.lab-card{display:flex;flex-direction:column;min-height:285px}.lab-top{display:flex;justify-content:space-between;gap:10px}
+.lab-no{font-weight:850;color:var(--primary)}.status{font-size:.75rem;border-radius:999px;padding:3px 8px;background:#eef1f6;color:#526076}
+.status.completed{background:#e7f5ed;color:var(--success)}.status.inprogress{background:#fff3d8;color:var(--warning)}
+.lab-card h3{margin:10px 0 5px;font-size:1.08rem}.lab-card p{font-size:.9rem;color:var(--muted)}
+.lab-meta{display:flex;gap:8px;flex-wrap:wrap;margin-top:auto;padding-top:12px}
+.lab-meta span{font-size:.75rem;background:var(--surface2);padding:4px 8px;border-radius:8px}
+.lab-card .btn{margin-top:14px;width:100%}
+.empty{padding:30px;text-align:center;border:1px dashed var(--border);border-radius:15px;color:var(--muted);display:none}
+.topic-map{display:grid;grid-template-columns:repeat(5,1fr);align-items:center;gap:8px}
+.topic-node{background:#fff;border:1px solid var(--border);border-radius:14px;padding:15px;text-align:center;text-decoration:none}
+.topic-node:hover{border-color:var(--primary);background:var(--accent)}
+.outcomes{display:grid;grid-template-columns:repeat(2,1fr);gap:15px}.outcome strong{color:var(--primary)}
+.getting{display:grid;grid-template-columns:1fr 1fr;gap:18px}.getting ol{padding-left:22px}
+footer{background:#101c2e;color:#dbe4f1;padding:38px 0;margin-top:20px}.footer-grid{display:flex;justify-content:space-between;gap:30px}
+footer a{color:#fff;text-decoration:none;margin-right:15px}.small{font-size:.82rem;color:#aebbd0}
+.toast{position:fixed;right:18px;bottom:18px;background:#17253a;color:#fff;padding:12px 15px;border-radius:10px;
+  box-shadow:var(--shadow);display:none;z-index:100}
+@media(max-width:900px){.hero-grid{grid-template-columns:1fr}.lab-grid{grid-template-columns:repeat(2,1fr)}
+  .flow{grid-template-columns:repeat(3,1fr)}.topic-map{grid-template-columns:repeat(3,1fr)}.toolbar{grid-template-columns:1fr 1fr}}
+@media(max-width:680px){
+  .navlinks{display:none;position:absolute;left:4%;right:4%;top:64px;background:#fff;border:1px solid var(--border);
+    padding:10px;border-radius:14px;box-shadow:var(--shadow);flex-direction:column;align-items:stretch}
+  .navlinks.open{display:flex}.menu{display:block}.stats,.module-grid,.lab-grid,.outcomes,.getting{grid-template-columns:1fr}
+  .flow{grid-template-columns:1fr 1fr}.topic-map{grid-template-columns:1fr 1fr}.toolbar{grid-template-columns:1fr}
+  .continue{grid-template-columns:1fr}.footer-grid{flex-direction:column}section{padding:45px 0}
+}
+</style>
+</head>
+<body>
+<header>
+  <nav class="nav container" aria-label="Main navigation">
+    <a class="brand" href="#home">1BAIA103<small>Introduction to AI & Applications</small></a>
+    <button class="menu" id="menuBtn" aria-expanded="false" aria-controls="navlinks" aria-label="Open navigation">☰</button>
+    <div class="navlinks" id="navlinks">
+      <a href="#home">Home</a><a href="#modules">Modules</a><a href="#labs">Virtual Labs</a>
+      <a href="#progress">Progress</a><a href="#about">About</a>
+    </div>
+  </nav>
+</header>
+
+<main id="home">
+<section class="hero">
+  <div class="container hero-grid">
+    <div>
+      <span class="eyebrow">First Semester B.E. · Academic Year 2025–26</span>
+      <h1>Introduction to<br>AI & Applications</h1>
+      <p class="lead"><strong>Course Code: 1BAIA103</strong><br>
+      Learn Artificial Intelligence by combining clear theory with experiments. Read the concept,
+      run a virtual laboratory, change inputs, observe the result, and reflect on what the algorithm is doing.</p>
+      <div class="actions">
+        <a class="btn" href="module-1/lab-01-ai-fundamentals.html">Start Learning</a>
+        <a class="btn secondary" href="#labs">Explore All Labs</a>
+        <a class="btn secondary" href="#modules">View Modules</a>
+      </div>
+      <div class="stats" aria-label="Course statistics">
+        <div class="stat"><strong>5</strong><span>Modules</span></div>
+        <div class="stat"><strong>40</strong><span>Virtual Labs</span></div>
+        <div class="stat"><strong>Beginner</strong><span>Friendly</span></div>
+        <div class="stat"><strong>Interactive</strong><span>Learning</span></div>
+      </div>
+    </div>
+    <aside class="hero-card" aria-label="Course overview">
+      <div class="number">40</div>
+      <h2>Virtual experiments</h2>
+      <p class="muted">From AI foundations and intelligent agents to prompt engineering, machine learning,
+      current AI trends, robotics and applications.</p>
+      <p><strong>Start with Lab 01</strong><br><span class="muted">AI Fundamentals Simulator</span></p>
+    </aside>
+  </div>
+</section>
+
+<section id="how">
+<div class="container">
+  <div class="section-head"><div><h2>How the Virtual Lab Works</h2><p>A simple five-step learning cycle.</p></div></div>
+  <div class="flow">
+    <div class="step"><b>1</b><h3>LEARN</h3><span class="muted">Understand the theory.</span></div>
+    <div class="step"><b>2</b><h3>TRY</h3><span class="muted">Run the experiment.</span></div>
+    <div class="step"><b>3</b><h3>OBSERVE</h3><span class="muted">See what happens.</span></div>
+    <div class="step"><b>4</b><h3>CHANGE</h3><span class="muted">Modify parameters.</span></div>
+    <div class="step"><b>5</b><h3>REFLECT</h3><span class="muted">Answer challenges and quiz questions.</span></div>
+  </div>
+</div>
+</section>
+
+<section id="progress">
+<div class="container">
+  <div class="section-head"><div><h2>Your Progress</h2><p>Progress is saved in this browser in Demo Mode. The structure is ready for Firebase/Firestore integration.</p></div></div>
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;gap:15px;align-items:center;flex-wrap:wrap">
+      <div><strong id="overallText">0 / 40 Labs Completed</strong><div class="muted">Overall Progress: <span id="overallPct">0%</span></div></div>
+      <button class="btn secondary" id="resetProgress">Reset Demo Progress</button>
+    </div>
+    <div class="progressbar" style="margin-top:15px"><span id="overallBar"></span></div>
+    <div id="moduleProgress" class="module-grid" style="margin-top:20px"></div>
+  </div>
+</div>
+</section>
+
+<section id="continue">
+<div class="container">
+  <div class="continue">
+    <div>
+      <h2 style="margin:0">Continue Learning</h2>
+      <p class="muted" id="continueText">Welcome! Start your first Virtual Lab.</p>
+    </div>
+    <a class="btn" id="continueBtn" href="module-1/lab-01-ai-fundamentals.html">Start Lab 01</a>
+  </div>
+</div>
+</section>
+
+<section id="modules">
+<div class="container">
+  <div class="section-head"><div><h2>Course Modules</h2><p>Exactly five modules, matching the project structure.</p></div></div>
+  <div class="module-grid" id="moduleCards"></div>
+</div>
+</section>
+
+<section id="labs">
+<div class="container">
+  <div class="section-head">
+    <div><h2>All 40 Virtual Labs</h2><p>Search by number, title, topic, module or keyword. Filters work together.</p></div>
+  </div>
+  <div class="toolbar" role="search">
+    <label><span class="small">Search Virtual Labs</span><input id="search" type="search" placeholder="Try: regression, agents, prompt, Lab 05"></label>
+    <label><span class="small">Module</span><select class="filter" id="moduleFilter"><option value="all">All Modules</option><option value="1">Module 1</option><option value="2">Module 2</option><option value="3">Module 3</option><option value="4">Module 4</option><option value="5">Module 5</option></select></label>
+    <label><span class="small">Difficulty</span><select class="filter" id="difficultyFilter"><option value="all">All</option><option>Beginner</option><option>Intermediate</option><option>Advanced</option></select></label>
+    <label><span class="small">Status</span><select class="filter" id="statusFilter"><option value="all">All Status</option><option value="not-started">Not Started</option><option value="in-progress">In Progress</option><option value="completed">Completed</option></select></label>
+  </div>
+  <div class="lab-grid" id="labGrid"></div>
+  <div class="empty" id="emptyState">No laboratories match the current search and filters.</div>
+</div>
+</section>
+
+<section id="topic-map">
+<div class="container">
+  <div class="section-head"><div><h2>Course Topic Map</h2><p>Move from foundations to applications.</p></div></div>
+  <div class="topic-map">
+    <a class="topic-node" href="#m1"><strong>MODULE 1</strong><br>AI Foundations</a>
+    <a class="topic-node" href="#m2"><strong>MODULE 2</strong><br>Prompt Engineering</a>
+    <a class="topic-node" href="#m3"><strong>MODULE 3</strong><br>Machine Learning</a>
+    <a class="topic-node" href="#m4"><strong>MODULE 4</strong><br>Current Trends</a>
+    <a class="topic-node" href="#m5"><strong>MODULE 5</strong><br>Robotics & Applications</a>
+  </div>
+</div>
+</section>
+
+<section id="about">
+<div class="container">
+  <div class="section-head"><div><h2>What Each Laboratory Contains</h2><p>The index is the starting point; the individual laboratory pages provide the detailed learning experience.</p></div></div>
+  <div class="getting">
+    <div class="card">
+      <h3>Typical Lab Structure</h3>
+      <ol>
+        <li>Theory and key concepts</li><li>How to Use instructions</li><li>Interactive experiment</li>
+        <li>Live results and explanation</li><li>Try Another Example</li><li>Challenge and quiz</li>
+        <li>Reflection and key takeaways</li><li>Syllabus mapping</li>
+      </ol>
+    </div>
+    <div class="card">
+      <h3>New to AI?</h3>
+      <ol>
+        <li>Learn what AI is</li><li>Explore how AI works</li><li>Understand intelligent agents</li>
+        <li>Try search algorithms</li><li>Learn how prompts communicate with AI</li><li>Explore machine learning</li>
+      </ol>
+      <a class="btn" href="module-1/lab-01-ai-fundamentals.html">Start with Lab 01</a>
+    </div>
+  </div>
+</div>
+</section>
+
+<section id="outcomes">
+<div class="container">
+  <div class="section-head"><div><h2>Course Outcomes & Assessment Alignment</h2><p>Only wording supported by the supplied assessment material is stated as an official outcome here.</p></div></div>
+  <div class="outcomes">
+    <div class="card outcome"><strong>CO1</strong><h3>AI concepts and types</h3><p>Explain the concepts and types of Artificial Intelligence.</p><p class="small">The supplied CIE/model-question material also assesses AI definition, working, advantages/disadvantages, intelligence, agents and search.</p></div>
+    <div class="card outcome"><strong>CO2</strong><h3>Basic machine learning methods</h3><p>Illustrate basic machine learning methods for regression, classification and clustering.</p><p class="small">The model question paper uses CO2 for Module 3 questions on neural networks, ML models, supervised/unsupervised learning, K-Means and regression.</p></div>
+  </div>
+</div>
+</section>
+
+<section id="why">
+<div class="container">
+  <div class="card">
+    <h2>Why Virtual Labs?</h2>
+    <p class="muted">Instead of only reading about AI, students can change inputs, run algorithms, observe results,
+    compare methods, make mistakes safely, repeat experiments and solve challenges. The goal is to make the
+    reasoning behind an AI method visible and testable.</p>
+  </div>
+</div>
+</section>
+</main>
+
+<footer>
+<div class="container footer-grid">
+  <div><strong>Introduction to AI & Applications · 1BAIA103</strong><div class="small">First Semester B.E. · Virtual Laboratory · Academic Year 2025–26</div></div>
+  <div><a href="#home">Home</a><a href="#modules">Modules</a><a href="#labs">Virtual Labs</a><a href="#about">About</a></div>
+  <div class="small">Designed for interactive learning</div>
+</div>
+</footer>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+const MODULES = [
+ {id:1,title:"Introduction to Artificial Intelligence",labs:8,desc:"AI fundamentals, intelligence, agents, environments and search.",
+  concepts:"AI definition · working · history · types · intelligence · agents · search"},
+ {id:2,title:"Prompt Engineering",labs:8,desc:"Prompt design, prompting techniques, creative thinking and effective writing.",
+  concepts:"Prompt types · instruction · zero/one/few-shot · self-consistency · refinement"},
+ {id:3,title:"Machine Learning",labs:11,desc:"Regression, classification, clustering, neural networks and related ML concepts.",
+  concepts:"Regression · Bayes · trees · K-Means · SVM · neural networks · deep learning"},
+ {id:4,title:"Current Trends in AI",labs:7,desc:"Ethics, trusted AI, expert systems, AIoT, AI services and emerging approaches.",
+  concepts:"AI ethics · risk · expert systems · IoT/AIoT · AIaaS · neuromorphic computing"},
+ {id:5,title:"Robotics and Industrial Applications of AI",labs:6,desc:"Robotics, drones, low/no-code AI and AI applications across real-world domains.",
+  concepts:"Robots · navigation · low-code/no-code · healthcare · finance · environment"}
+];
+
+const LABS = [
+ {n:1,m:1,title:"AI Fundamentals Simulator",slug:"ai-fundamentals",desc:"Explore what AI is, how an AI system processes information, and where AI is used.",d:"Beginner",t:15},
+ {n:2,m:1,title:"AI History & Types Explorer",slug:"ai-history-types",desc:"Explore major AI milestones and compare weak/strong AI, reactive, limited-memory, theory-of-mind and self-awareness categories.",d:"Beginner",t:15},
+ {n:3,m:1,title:"Intelligence Comparison Lab",slug:"intelligence-comparison",desc:"Compare components of intelligence and human versus machine intelligence using examples.",d:"Beginner",t:15},
+ {n:4,m:1,title:"Agent & Environment Simulator",slug:"agent-environment",desc:"Experiment with percepts, actions, environments and the five agent types: reflex, model-based, goal-based, utility-based and learning.",d:"Intermediate",t:20},
+ {n:5,m:1,title:"BFS vs DFS vs UCS Lab",slug:"bfs-dfs-ucs",desc:"Run uninformed search and compare traversal order, path and cost for BFS, DFS and UCS.",d:"Intermediate",t:20},
+ {n:6,m:1,title:"Depth-Limited & IDDFS Lab",slug:"depth-limited-iddfs",desc:"Change depth limits and observe how Depth-Limited Search and Iterative Deepening DFS behave.",d:"Intermediate",t:20},
+ {n:7,m:1,title:"Heuristic Search Lab",slug:"heuristic-search",desc:"Explore heuristic values and how informed search uses extra information about the search space.",d:"Intermediate",t:20},
+ {n:8,m:1,title:"Greedy Best-First Search Lab",slug:"greedy-best-first",desc:"Use h(n) values to see why Greedy Best-First Search can reach promising nodes quickly but may miss the optimal path.",d:"Intermediate",t:20},
+
+ {n:9,m:2,title:"Prompt Quality Laboratory",slug:"prompt-quality",desc:"Compare vague and clear prompts and observe how specificity changes AI responses.",d:"Beginner",t:15},
+ {n:10,m:2,title:"Prompt Evolution & Types Explorer",slug:"prompt-evolution-types",desc:"Explore the evolution of prompting and classify prompts by their purpose and structure.",d:"Beginner",t:15},
+ {n:11,m:2,title:"Instruction Prompt Builder",slug:"instruction-prompts",desc:"Build prompts with role, task, context, constraints and output-format instructions.",d:"Beginner",t:15},
+ {n:12,m:2,title:"Zero-Shot / One-Shot / Few-Shot Lab",slug:"shot-prompting",desc:"Compare zero-, one- and few-shot examples and observe how examples guide an LLM.",d:"Intermediate",t:20},
+ {n:13,m:2,title:"Self-Consistency Prompt Lab",slug:"self-consistency",desc:"Generate multiple solution attempts and compare how consistent answers can improve confidence.",d:"Intermediate",t:20},
+ {n:14,m:2,title:"Prompt Refinement & Role Prompting Lab",slug:"prompt-refinement-role",desc:"Iteratively refine ambiguous prompts and compare responses under different roles and audiences.",d:"Intermediate",t:20},
+ {n:15,m:2,title:"Creative Engineering Prompt Lab",slug:"creative-engineering",desc:"Add constraints such as low cost, limited resources and sustainability to produce practical ideas.",d:"Intermediate",t:20},
+ {n:16,m:2,title:"Effective Writing & Communication Prompt Lab",slug:"writing-communication",desc:"Use prompts for summarization, extraction, paraphrasing, question answering and clearer communication.",d:"Beginner",t:20},
+
+ {n:17,m:3,title:"Machine Learning Fundamentals Lab",slug:"ml-fundamentals",desc:"Explore ML as learning from data and compare major learning approaches.",d:"Beginner",t:20},
+ {n:18,m:3,title:"Linear Regression Simulator",slug:"linear-regression",desc:"Change data points and observe the fitted linear relationship used for prediction.",d:"Intermediate",t:20},
+ {n:19,m:3,title:"Polynomial Regression Simulator",slug:"polynomial-regression",desc:"Change polynomial degree and data to see how a nonlinear regression curve changes.",d:"Intermediate",t:20},
+ {n:20,m:3,title:"Logistic Regression Classification Lab",slug:"logistic-regression",desc:"Explore probability-based binary classification and observe how decision boundaries change.",d:"Intermediate",t:20},
+ {n:21,m:3,title:"Bayes & Naive Bayes Lab",slug:"bayes-naive-bayes",desc:"Experiment with conditional probability, Bayes rule and simple Naive Bayes classification.",d:"Intermediate",t:20},
+ {n:22,m:3,title:"Decision Tree Builder",slug:"decision-tree",desc:"Build a small decision tree and follow the sequence of decisions from root to prediction.",d:"Intermediate",t:20},
+ {n:23,m:3,title:"Random Forest Explorer",slug:"random-forest",desc:"Explore how multiple decision trees can work together as an ensemble.",d:"Intermediate",t:20},
+ {n:24,m:3,title:"K-Means Clustering Simulator",slug:"kmeans",desc:"Move data points, choose K and observe cluster assignments and centroids.",d:"Intermediate",t:20},
+ {n:25,m:3,title:"SVM Classification Lab",slug:"svm",desc:"Explore classification using separating hyperplanes and the idea of a maximum-margin boundary.",d:"Intermediate",t:20},
+ {n:26,m:3,title:"Neural Network Playground",slug:"neural-network",desc:"Explore input, hidden and output layers, weights and simple prediction behavior.",d:"Intermediate",t:25},
+ {n:27,m:3,title:"Deep Learning, CNN, RNN, NLP & Computer Vision Explorer",slug:"deep-learning-explorer",desc:"Explore how deep learning architectures relate to images, sequences, language and computer vision.",d:"Advanced",t:25},
+
+ {n:28,m:4,title:"AI Ethics & Bias Laboratory",slug:"ethics-bias",desc:"Identify bias risks and test how wording, data and decisions can affect AI outcomes.",d:"Intermediate",t:20},
+ {n:29,m:4,title:"Trusted AI & AI Risk Assessment Lab",slug:"trusted-ai-risk",desc:"Assess AI scenarios using trust, safety, fairness, transparency and risk considerations.",d:"Intermediate",t:20},
+ {n:30,m:4,title:"Expert System Simulator",slug:"expert-system",desc:"Explore a knowledge base, inference process and user interaction in a rule-based expert system.",d:"Intermediate",t:20},
+ {n:31,m:4,title:"IoT & AIoT Smart System Simulator",slug:"iot-aiot",desc:"Trace sensors, data, AI analysis and actions in an intelligent connected system.",d:"Intermediate",t:20},
+ {n:32,m:4,title:"AI as a Service Simulator",slug:"ai-as-a-service",desc:"Explore the idea of consuming AI capabilities as services through a simplified workflow.",d:"Beginner",t:15},
+ {n:33,m:4,title:"Neuromorphic Computing Lab",slug:"neuromorphic-computing",desc:"Explore brain-inspired computing concepts and compare them with conventional processing.",d:"Advanced",t:20},
+ {n:34,m:4,title:"AI Trends, Game Theory & Autonomous Systems Lab",slug:"ai-trends-autonomous",desc:"Explore selected emerging AI ideas, strategic decision-making and autonomous-system behavior.",d:"Advanced",t:25},
+
+ {n:35,m:5,title:"Robotics & Robot Types Simulator",slug:"robotics-types",desc:"Identify robot types and connect robot capabilities to industrial applications.",d:"Beginner",t:20},
+ {n:36,m:5,title:"AI Drone Navigation Lab",slug:"drone-navigation",desc:"Experiment with route choices, obstacles and goal-directed autonomous navigation.",d:"Intermediate",t:20},
+ {n:37,m:5,title:"No-Code & Low-Code AI Lab",slug:"no-code-low-code",desc:"Compare traditional development with no-code and low-code approaches to AI solutions.",d:"Beginner",t:20},
+ {n:38,m:5,title:"AI in Healthcare & Personalized Education Lab",slug:"healthcare-education",desc:"Explore responsible AI use cases for early disease prevention, diagnosis and personalized learning.",d:"Intermediate",t:20},
+ {n:39,m:5,title:"AI in Finance, Retail & Agriculture Lab",slug:"finance-retail-agriculture",desc:"Explore classification, prediction, recommendation and decision-support use cases across sectors.",d:"Intermediate",t:20},
+ {n:40,m:5,title:"AI for Environment, Transportation & Scientific Research",slug:"environment-transport-research",desc:"Explore AI applications for environmental monitoring, transportation and scientific research.",d:"Intermediate",t:20}
+];
+
+const KEY="1baia103_virtual_lab_progress_v1";
+let progress=loadProgress();
+let lastVisited=localStorage.getItem(KEY+"_last")||"";
+
+function loadProgress(){
+  try{return JSON.parse(localStorage.getItem(KEY)||"{}")}catch(e){return {}}
+}
+function saveProgress(){try{localStorage.setItem(KEY,JSON.stringify(progress))}catch(e){}}
+function state(n){return progress[n]||"not-started"}
+function moduleFor(n){return LABS.find(x=>x.n===n)?.m}
+function pathFor(l){return `module-${l.m}/lab-${String(l.n).padStart(2,"0")}-${l.slug}.html`}
+function statusLabel(s){return s==="completed"?"Completed":s==="in-progress"?"In Progress":"Not Started"}
+function statusClass(s){return s==="completed"?"completed":s==="in-progress"?"inprogress":""}
+
+function renderModules(){
+  const wrap=document.getElementById("moduleCards");
+  wrap.innerHTML=MODULES.map(m=>{
+    const done=LABS.filter(l=>l.m===m.id&&state(l.n)==="completed").length;
+    const pct=Math.round(done/m.labs*100);
+    return `<article class="card module-card" id="m${m.id}">
+      <div class="module-no">MODULE ${m.id}</div><h3>${m.title}</h3>
+      <p class="muted">${m.desc}</p><div class="chips">
+      <span class="chip">${m.labs} Virtual Labs</span><span class="chip">${m.concepts}</span></div>
+      <div class="progressbar" aria-label="Module ${m.id} progress"><span style="width:${pct}%"></span></div>
+      <div class="module-footer"><span>${done} / ${m.labs} completed</span>
+      <a class="btn" href="#labs" onclick="setModule(${m.id})">Explore Module</a></div>
+    </article>`
+  }).join("");
+}
+function renderProgress(){
+  const done=LABS.filter(l=>state(l.n)==="completed").length;
+  const pct=Math.round(done/40*100);
+  document.getElementById("overallText").textContent=`${done} / 40 Labs Completed`;
+  document.getElementById("overallPct").textContent=`${pct}%`;
+  document.getElementById("overallBar").style.width=pct+"%";
+  document.getElementById("moduleProgress").innerHTML=MODULES.map(m=>{
+    const d=LABS.filter(l=>l.m===m.id&&state(l.n)==="completed").length;
+    return `<div class="card"><strong>Module ${m.id}</strong><div class="muted">${d} / ${m.labs}</div>
+      <div class="progressbar"><span style="width:${Math.round(d/m.labs*100)}%"></span></div></div>`
+  }).join("");
+}
+function renderLabs(){
+  const q=document.getElementById("search").value.trim().toLowerCase();
+  const mf=document.getElementById("moduleFilter").value;
+  const df=document.getElementById("difficultyFilter").value;
+  const sf=document.getElementById("statusFilter").value;
+  const items=LABS.filter(l=>{
+    const text=`lab ${String(l.n).padStart(2,"0")} ${l.title} module ${l.m} ${MODULES[l.m-1].title} ${l.desc}`.toLowerCase();
+    return (!q||text.includes(q)) && (mf==="all"||String(l.m)===mf) &&
+      (df==="all"||l.d===df) && (sf==="all"||state(l.n)===sf);
+  });
+  const grid=document.getElementById("labGrid");
+  grid.innerHTML=items.map(l=>{
+    const s=state(l.n);
+    return `<article class="card lab-card">
+      <div class="lab-top"><span class="lab-no">LAB ${String(l.n).padStart(2,"0")}</span><span class="status ${statusClass(s)}">${statusLabel(s)}</span></div>
+      <h3>${l.title}</h3><div class="small">Module ${l.m} · ${MODULES[l.m-1].title}</div>
+      <p>${l.desc}</p>
+      <div class="lab-meta"><span>${l.d}</span><span>${l.t} min</span></div>
+      <a class="btn" href="${pathFor(l)}" onclick="visitLab(${l.n})">Start Lab</a>
+    </article>`
+  }).join("");
+  document.getElementById("emptyState").style.display=items.length?"none":"block";
+}
+function updateContinue(){
+  const el=document.getElementById("continueText"), btn=document.getElementById("continueBtn");
+  if(lastVisited){
+    const l=LABS.find(x=>x.n===Number(lastVisited));
+    if(l){el.textContent=`Last visited: Lab ${String(l.n).padStart(2,"0")} — ${l.title}`;btn.textContent="Continue Lab";btn.href=pathFor(l);return}
+  }
+  el.textContent="Welcome! Start your first Virtual Lab.";btn.textContent="Start Lab 01";btn.href=pathFor(LABS[0]);
+}
+function visitLab(n){
+  progress[n]=progress[n]==="completed"?"completed":"in-progress";
+  lastVisited=String(n);
+  try{localStorage.setItem(KEY+"_last",lastVisited)}catch(e){}
+  saveProgress(); renderAll();
+}
+function setModule(m){
+  document.getElementById("moduleFilter").value=String(m);renderLabs();
+}
+function renderAll(){renderModules();renderProgress();renderLabs();updateContinue()}
+
+document.getElementById("search").addEventListener("input",renderLabs);
+document.getElementById("moduleFilter").addEventListener("change",renderLabs);
+document.getElementById("difficultyFilter").addEventListener("change",renderLabs);
+document.getElementById("statusFilter").addEventListener("change",renderLabs);
+document.getElementById("resetProgress").addEventListener("click",()=>{
+  if(confirm("Reset all Demo Mode progress for this browser?")){
+    progress={};lastVisited="";try{localStorage.removeItem(KEY);localStorage.removeItem(KEY+"_last")}catch(e){}
+    renderAll();showToast("Demo progress reset.");
+  }
+});
+const menuBtn=document.getElementById("menuBtn"), nav=document.getElementById("navlinks");
+menuBtn.addEventListener("click",()=>{const open=nav.classList.toggle("open");menuBtn.setAttribute("aria-expanded",open)});
+nav.querySelectorAll("a").forEach(a=>a.addEventListener("click",()=>nav.classList.remove("open")));
+document.addEventListener("keydown",e=>{if(e.key==="Escape")nav.classList.remove("open")});
+function showToast(msg){const t=document.getElementById("toast");t.textContent=msg;t.style.display="block";setTimeout(()=>t.style.display="none",2200)}
+
+window.firebaseProgressAdapter = {
+  /*
+    Firebase-ready adapter placeholder.
+    Keep credentials/config OUT of this index.html.
+    Future Firestore integration can replace these functions.
+  */
+  async loadStudentProgress(userId){return null},
+  async saveStudentProgress(userId,data){return false},
+  async markLabCompleted(userId,labNumber,score){return false}
+};
+
+renderAll();
+</script>
+</body>
+</html>
