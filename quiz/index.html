@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>1BAIA103 | Quiz Portal</title>
+<link rel="stylesheet" href="css/quiz.css">
+</head>
+<body>
+<header class="topbar">
+  <div><span class="eyebrow">1BAIA103</span><h1>AI Quiz Portal</h1><p>Introduction to AI &amp; its Applications</p></div>
+  <a href="../index.html">← Course Home</a>
+</header>
+<main class="container">
+<section class="card hero"><div><span class="badge">Student Portal</span><h2>Ready for your quiz?</h2><p>Enter your details to view faculty-activated quizzes.</p></div><div id="firebaseStatus" class="firebase-status">Firebase: checking…</div></section>
+
+<section class="card">
+<h2>Student Details</h2>
+<form id="studentForm" class="form-grid">
+<label>Name<input id="studentName" required maxlength="80" placeholder="Enter your full name"></label>
+<label>Roll Number<input id="rollNo" required maxlength="30" placeholder="Enter your roll number"></label>
+<label>Branch<select id="branch" required>
+<option value="">Select branch</option><option>AI &amp; DS</option><option>CSE</option><option>ISE</option><option>ECE</option><option>EEE</option><option>Mechanical</option><option>Civil</option><option>Other</option>
+</select></label>
+<button class="primary" type="submit">Continue to Quizzes →</button>
+</form>
+<p class="hint">Replace the starter branch list with your institution's official branches before deployment.</p>
+</section>
+
+<section id="quizSection" class="card hidden">
+<div class="section-heading"><div><span class="badge">Available Quizzes</span><h2 id="welcomeText">Quizzes</h2></div><button id="changeStudent" class="secondary" type="button">Change Student</button></div>
+<div id="quizList" class="quiz-list"><div class="empty">No active quizzes are available yet.</div></div>
+</section>
+
+<section class="card"><h2>How it works</h2>
+<div class="steps"><div><b>1</b><span>Faculty imports an Excel quiz.</span></div><div><b>2</b><span>Faculty activates it.</span></div><div><b>3</b><span>Students attempt it.</span></div><div><b>4</b><span>Results and leaderboard update from Firestore.</span></div></div>
+</section>
+
+<section class="card warning"><h2>Firebase setup required</h2><p>Add your Firebase Web App configuration to <code>js/firebase-config.js</code>.</p><p><strong>Never place Firebase Admin/service-account credentials in this folder.</strong></p></section>
+</main>
+<footer>1BAIA103 • Introduction to AI &amp; its Applications</footer>
+<script type="module" src="js/firebase-init.js"></script>
+<script type="module" src="js/student.js"></script>
+</body></html>

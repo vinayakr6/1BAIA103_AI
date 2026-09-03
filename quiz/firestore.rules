@@ -1,0 +1,26 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /quizzes/{quizId} {
+      allow read: if resource.data.status == "active";
+      allow write: if false;
+      match /questions/{questionId} {
+        allow read: if get(/databases/$(database)/documents/quizzes/$(quizId)).data.status == "active";
+        allow write: if false;
+      }
+    }
+    match /students/{rollNo} {
+      allow read: if false;
+      allow create: if true;
+      allow update, delete: if false;
+    }
+    match /attempts/{attemptId} {
+      allow read: if false;
+      allow create: if true;
+      allow update, delete: if false;
+    }
+    match /faculty/{facultyUid} {
+      allow read, write: if false;
+    }
+  }
+}
