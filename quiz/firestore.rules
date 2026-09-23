@@ -1,54 +1,114 @@
 rules_version = '2';
+
 service cloud.firestore {
   match /databases/{database}/documents {
-    function signedIn() { return request.auth != null; }
-    function isAdmin() {
-      return signedIn()
-        && exists(/databases/$(database)/documents/admins/$(request.auth.uid))
-        && get(/databases/$(database)/documents/admins/$(request.auth.uid)).data.active == true;
+
+    // -------------------------
+    // ADMIN USERS
+    // -------------------------
+    match /admins/{userId} {
+
+      // A logged-in user can read only their own admin record
+      allow read: if request.auth != null
+                  && request.auth.uid == userId;
+
+      // Only an existing admin can create/update/delete admin records
+      allow write: if request.auth != null
+                    && exists(
+                      /databases/$(database)/documents/admins/$(request.auth.uid)
+                    )
+                    && request.auth.uid == userId;
     }
 
-    // Public classroom configuration.
+
+    // -------------------------
+    // SUBJECTS
+    // -------------------------
     match /subjects/{subjectId} {
+
+      // Students can see subjects
       allow read: if true;
+
+      // Only admins can modify subjects
       allow write: if isAdmin();
     }
 
-    // Students may read published quizzes. Admins may manage all quizzes.
-    match /quizzes/{quizId} {
-      allow read: if resource.data.status == 'published' || isAdmin();
-      allow create, update, delete: if isAdmin();
 
+    // -------------------------
+    // QUIZZES
+    // -------------------------
+    match /quizzes/{quizId} {
+
+      // Students can read published quizzes
+      allow read: if resource.data.status == "published"
+                  || isAdmin();
+
+      // Admins can create/edit/delete quizzes
+      allow write: if isAdmin();
+
+
+      // -------------------------
+      // QUESTIONS
+      // -------------------------
       match /questions/{questionId} {
-        allow read: if get(/databases/$(database)/documents/quizzes/$(quizId)).data.status == 'published' || isAdmin();
-        allow create, update, delete: if isAdmin();
+
+        // Students can read questions belonging to published quizzes
+        allow read: if get(
+          /databases/$(database)/documents/quizzes/$(quizId)
+        ).data.status == "published"
+        || isAdmin();
+
+        // Only admins can modify questions
+        allow write: if isAdmin();
       }
     }
 
-    // Student submissions: unauthenticated students can create attempts, but cannot edit/delete them.
-    // Admins can read and manage attempts.
+
+    // -------------------------
+    // QUIZ ATTEMPTS
+    // -------------------------
     match /attempts/{attemptId} {
-      allow create: if request.resource.data.name is string
-        && request.resource.data.rollNo is string
-        && request.resource.data.quizId is string
-        && request.resource.data.score is number;
-      allow read: if isAdmin();
+
+      // Students can submit an attempt
+      allow create: if true;
+
+      // Students should not modify an existing attempt
       allow update, delete: if isAdmin();
+
+      // Admins can view attempts
+      allow read: if isAdmin();
     }
 
-    // Public leaderboard snapshots. Because students have no login, writes cannot be tied to identity.
-    // This is a deliberate Spark-plan tradeoff; do not treat the leaderboard as tamper-proof.
-    match /leaderboards/{subjectId}/students/{studentKey} {
+
+    // -------------------------
+    // LEADERBOARD
+    // -------------------------
+    match /leaderboards/{subjectId} {
+
       allow read: if true;
-      allow create, update: if request.resource.data.name is string
-        && request.resource.data.rollNo is string
-        && request.resource.data.totalScore is number;
-      allow delete: if isAdmin();
+
+      allow write: if isAdmin();
+
+      match /students/{studentId} {
+
+        allow read: if true;
+
+        allow write: if isAdmin();
+      }
     }
 
-    match /admins/{uid} {
-      allow read: if signedIn() && request.auth.uid == uid;
-      allow write: if isAdmin();
+
+    // -------------------------
+    // ADMIN CHECK
+    // -------------------------
+    function isAdmin() {
+      return request.auth != null
+             && exists(
+               /databases/$(database)/documents/admins/$(request.auth.uid)
+             )
+             && get(
+               /databases/$(database)/documents/admins/$(request.auth.uid)
+             ).data.active == true;
     }
   }
 }
