@@ -23,7 +23,7 @@
 
 <section id="leaderView" class="hidden"><div class="grid"><div class="card col-12"><div class="row between"><div><h2>Cumulative leaderboard</h2><div class="muted">Totals are calculated from submitted attempts/snapshots for the selected subject.</div></div><select id="leaderSubject" class="select" style="max-width:260px"></select></div><div id="leaderboardTable" style="margin-top:16px"></div></div></div></section>
 
-<section id="adminView" class="hidden"><div id="adminLoginCard" class="card"><h2>Admin login</h2><p class="muted">Only Google accounts whose UID has an <code>admins/{VuSFvZbZ4mgsWLm5cBiESLqaE1M2}</code> document can use the admin console.</p><button class="btn primary" id="googleLogin">Continue with Google</button><div id="adminLoginMsg" style="margin-top:12px"></div></div><div id="adminConsole" class="hidden"></div></section>
+<section id="adminView" class="hidden"><div id="adminLoginCard" class="card"><h2>Admin login</h2><p class="muted">Only Google accounts whose UID has an <code>admins/{uid}</code> document can use the admin console.</p><button class="btn primary" id="googleLogin">Continue with Google</button><div id="adminLoginMsg" style="margin-top:12px"></div></div><div id="adminConsole" class="hidden"></div></section>
 </main>
 <footer class="footer">Firebase-backed classroom quiz portal · Student score calculation is client-side in the Spark-only version; see the setup guide for the security limitation.</footer>
 
@@ -53,7 +53,7 @@ const APP_CHECK_RECAPTCHA_SITE_KEY = '';
 
 const DEFAULT_SUBJECT = {id:'1BAIA103', code:'1BAIA103', name:'Introduction to AI and Applications', semester:'First Semester', academicYear:'2026-27'};
 const $ = id => document.getElementById(id);
-let app=null, auth=null, db=null, currentUser=null, currentQuiz=null, currentAttempt=null, timerHandle=null;
+let app=null, auth=null, db=null, currentUser=null, currentQuiz=null, currentAttempt=null, timerHandle=null, revealHandle=null;
 let adminSubjectCache=[];
 const isConfigured = firebaseConfig.apiKey && !firebaseConfig.apiKey.startsWith('PASTE_') && firebaseConfig.projectId && !firebaseConfig.projectId.startsWith('YOUR_');
 
@@ -79,7 +79,7 @@ function showSetupGuide(){openModal('Firebase connection guide',`
 {
   "role": "admin",
   "email": "vinayakr6@gmail.com",
-  "displatName": "Vinayak Ratan",
+  "displatName": "Vinayakk Ratan",
   "active": true
 }</pre><p>Sign out and sign in again. The Admin Console will then unlock.</p>
 <h3>5. Deploy</h3><p>You can use Firebase Hosting, GitHub Pages, or another static host. Firebase Hosting provides HTTPS and is convenient for this Firebase-backed app. Do not put service-account keys in this HTML.</p>
@@ -115,14 +115,85 @@ async function startQuiz(){
  if(!name||!roll||!branch){toast('Please complete all student details.');return}
  try{let qs=await fetchQuestions(currentQuiz.id);if(!qs.length)throw Error('This quiz has no active questions.');if(currentQuiz.shuffleQuestions!==false)qs=shuffle(qs);qs=qs.slice(0,Number(currentQuiz.questionCount||qs.length));qs=qs.map(q=>{let opts=(q.options||[]).map((text,i)=>({text,correct:i===Number(q.correctIndex)}));if(currentQuiz.shuffleOptions!==false)opts=shuffle(opts);return {...q,opts}});currentAttempt={name,roll,branch,startedAt:Date.now(),endAt:Date.now()+Number(currentQuiz.durationMinutes||10)*60000,questions:qs,answers:{}};renderAttempt();startTimer();}catch(e){toast(e.message)}
 }
-function startTimer(){clearInterval(timerHandle);timerHandle=setInterval(()=>{const left=Math.max(0,currentAttempt.endAt-Date.now());const s=Math.floor(left/1000);if($('timer'))$('timer').textContent=`${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`;if(left<=0){clearInterval(timerHandle);toast('Time is up. Submitting…');submitQuiz(true)}},250)}
+function startTimer(){
+  clearInterval(timerHandle);clearTimeout(revealHandle);
+  timerHandle=setInterval(()=>{
+    const left=Math.max(0,currentAttempt.endAt-Date.now());
+    const s=Math.floor(left/1000);
+    if($('timer'))$('timer').textContent=`${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`;
+    if(left<=0){
+      clearInterval(timerHandle);
+      if(currentAttempt.submittedEarly && currentAttempt.result){
+        revealResultAfterTime();
+      }else if(!currentAttempt.submitted){
+        toast('Time is up. Submitting…');
+        submitQuiz(true);
+      }
+    }
+  },250);
+}
+function scheduleResultReveal(){
+  clearTimeout(revealHandle);
+  const wait=Math.max(0,currentAttempt.endAt-Date.now());
+  revealHandle=setTimeout(()=>revealResultAfterTime(),wait+100);
+}
+function revealResultAfterTime(){
+  clearTimeout(revealHandle);clearInterval(timerHandle);
+  if(currentAttempt?.result) renderResult();
+}
 function renderAttempt(){
  $('quizStartPanel').classList.add('hidden');$('quizAttemptPanel').classList.remove('hidden');$('quizResultPanel').classList.add('hidden');const qs=currentAttempt.questions;
  $('quizAttemptPanel').innerHTML=`<div class="card"><div class="row between"><div><b>${esc(currentQuiz.title)}</b><div class="muted">${esc(currentAttempt.name)} · ${esc(currentAttempt.roll)} · ${esc(currentAttempt.branch)}</div></div><div class="timer" id="timer">--:--</div></div><div style="margin:16px 0"><div class="row between"><span class="muted">Progress</span><span id="progressText" class="muted">0 / ${qs.length}</span></div><div class="progress"><span id="progressBar"></span></div></div></div><form id="quizForm">${qs.map((q,i)=>`<div class="question"><div class="muted" style="font-size:12px;font-weight:800">Question ${i+1}${q.module?` · ${esc(q.module)}`:''}</div><h3>${esc(q.question)}</h3><div class="options">${q.opts.map((o,j)=>`<label class="option"><input type="radio" name="q${i}" value="${j}" data-q="${i}"><span>${esc(o.text)}</span></label>`).join('')}</div></div>`).join('')}<div class="card"><div class="row between"><div><b>Ready to submit?</b><div class="muted">Unanswered questions receive 0.</div></div><button class="btn good" type="button" id="submitQuizBtn">Submit quiz</button></div></div></form>`;
  $('quizForm').addEventListener('change',e=>{if(e.target.matches('input[type=radio]')){currentAttempt.answers[e.target.dataset.q]=Number(e.target.value);updateProgress()}});$('submitQuizBtn').onclick=()=>submitQuiz(false);updateProgress();
 }
 function updateProgress(){const n=Object.keys(currentAttempt?.answers||{}).length,total=currentAttempt?.questions.length||1;if($('progressText'))$('progressText').textContent=`${n} / ${total}`;if($('progressBar'))$('progressBar').style.width=`${Math.round(n/total*100)}%`}
-async function submitQuiz(auto=false){if(!currentAttempt||currentAttempt.submitting)return;currentAttempt.submitting=true;clearInterval(timerHandle);const qs=currentAttempt.questions;let correct=0,wrong=0,unanswered=0,score=0;const review=[];qs.forEach((q,i)=>{const selected=currentAttempt.answers[i];if(selected===undefined){unanswered++;review.push({q,selected:null});return}const isCorrect=!!q.opts[selected]?.correct;if(isCorrect){correct++;score+=Number(q.marks||currentQuiz.marksPerQuestion||1)}else{wrong++;score-=Number(currentQuiz.negativeMarking||0)}review.push({q,selected,isCorrect})});score=Math.max(0,score);const totalMarks=qs.reduce((s,q)=>s+Number(q.marks||currentQuiz.marksPerQuestion||1),0);const attempt={subjectId:currentQuiz.subjectId||currentQuiz.subjectCode||'1BAIA103',subjectCode:currentQuiz.subjectCode||'',quizId:currentQuiz.id,quizTitle:currentQuiz.title,name:currentAttempt.name,rollNo:currentAttempt.roll,branch:currentAttempt.branch,score,totalMarks,percentage:totalMarks?Math.round(score/totalMarks*10000)/100:0,correct,wrong,unanswered,submittedAt:serverTimestamp(),clientSubmittedAt:new Date().toISOString()};try{const ref=await addDoc(collection(db,'attempts'),attempt);await updateLeaderboard(attempt);currentAttempt.result={...attempt,id:ref.id,review};renderResult();}catch(e){console.error(e);toast('Could not save your result. Check your connection.');currentAttempt.submitting=false}}
+async function submitQuiz(auto=false){
+  if(!currentAttempt||currentAttempt.submitting||currentAttempt.submitted)return;
+  currentAttempt.submitting=true;
+  clearInterval(timerHandle);
+  const qs=currentAttempt.questions;let correct=0,wrong=0,unanswered=0,score=0;const review=[];
+  qs.forEach((q,i)=>{
+    const selected=currentAttempt.answers[i];
+    if(selected===undefined){unanswered++;review.push({q,selected:null});return}
+    const isCorrect=!!q.opts[selected]?.correct;
+    if(isCorrect){correct++;score+=Number(q.marks||currentQuiz.marksPerQuestion||1)}
+    else{wrong++;score-=Number(currentQuiz.negativeMarking||0)}
+    review.push({q,selected,isCorrect});
+  });
+  score=Math.max(0,score);
+  const totalMarks=qs.reduce((s,q)=>s+Number(q.marks||currentQuiz.marksPerQuestion||1),0);
+  const early=!auto && Date.now()<currentAttempt.endAt;
+  const attempt={subjectId:currentQuiz.subjectId||currentQuiz.subjectCode||'1BAIA103',subjectCode:currentQuiz.subjectCode||'',quizId:currentQuiz.id,quizTitle:currentQuiz.title,name:currentAttempt.name,rollNo:currentAttempt.roll,branch:currentAttempt.branch,score,totalMarks,percentage:totalMarks?Math.round(score/totalMarks*10000)/100:0,correct,wrong,unanswered,submittedEarly:early,resultAvailableAt:new Date(currentAttempt.endAt).toISOString(),submittedAt:serverTimestamp(),clientSubmittedAt:new Date().toISOString()};
+  try{
+    const ref=await addDoc(collection(db,'attempts'),attempt);
+    await updateLeaderboard(attempt);
+    currentAttempt.result={...attempt,id:ref.id,review};
+    currentAttempt.submitted=true;
+    currentAttempt.submitting=false;
+    if(early){
+      currentAttempt.submittedEarly=true;
+      showWaitingForResult();
+      scheduleResultReveal();
+    }else{
+      revealResultAfterTime();
+    }
+  }catch(e){console.error(e);toast('Could not save your result. Check your connection.');currentAttempt.submitting=false}
+}
+function showWaitingForResult(){
+  $('quizAttemptPanel').classList.add('hidden');
+  $('quizResultPanel').classList.remove('hidden');
+  const end=new Date(currentAttempt.endAt);
+  $('quizResultPanel').innerHTML=`<div class="card"><span class="pill">Quiz submitted</span><h1>Submission successful</h1><div class="notice good"><b>Your answers have been recorded.</b><br>Because you submitted before the quiz time ended, your score, correct answers and answer review will be available only when the scheduled quiz time ends.</div><div class="card" style="margin-top:16px"><h3>Results will be available at</h3><div id="resultCountdown" class="result-score">--:--</div><p class="muted">${esc(end.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}))}</p></div><div class="row"><button class="btn" id="waitingHomeBtn">Home</button></div></div>`;
+  $('waitingHomeBtn').onclick=()=>{clearTimeout(revealHandle);showView('homeView');loadPublishedQuizzes()};
+  updateResultCountdown();
+}
+function updateResultCountdown(){
+  if(!currentAttempt?.submittedEarly||!$('resultCountdown'))return;
+  const left=Math.max(0,currentAttempt.endAt-Date.now());
+  const s=Math.ceil(left/1000);
+  $('resultCountdown').textContent=`${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`;
+  if(left>0)setTimeout(updateResultCountdown,250);
+}
 async function updateLeaderboard(a){const subjectId=slug(a.subjectId||a.subjectCode||'subject');const studentKey=slug(a.rollNo||a.name);const ref=doc(db,'leaderboards',subjectId,'students',studentKey);await runTransaction(db,async tx=>{const snap=await tx.get(ref);const old=snap.exists()?snap.data():{};const scores={...(old.quizScores||{})};scores[a.quizId]=Number(a.score||0);const total=Object.values(scores).reduce((s,v)=>s+Number(v||0),0);const attempts=Number(old.attemptCount||0)+1;tx.set(ref,{subjectId,studentKey,name:a.name,rollNo:a.rollNo,branch:a.branch,totalScore:total,quizScores:scores,attemptCount:attempts,updatedAt:serverTimestamp()},{merge:true})})}
 function renderResult(){const r=currentAttempt.result;$('quizAttemptPanel').classList.add('hidden');$('quizResultPanel').classList.remove('hidden');$('quizResultPanel').innerHTML=`<div class="grid"><div class="card col-8"><span class="pill">Quiz completed</span><h1>Result</h1><div class="result-score">${r.score} / ${r.totalMarks}</div><p class="muted">${r.percentage}% · ${r.correct} correct · ${r.wrong} wrong · ${r.unanswered} unanswered</p><div class="row"><button class="btn primary" id="resultLeaderBtn">View leaderboard</button><button class="btn" id="resultHomeBtn">Home</button></div></div><div class="card col-4"><h3>Attempt details</h3><p><b>Name:</b> ${esc(r.name)}</p><p><b>Roll:</b> ${esc(r.rollNo)}</p><p><b>Branch:</b> ${esc(r.branch)}</p><p><b>Quiz:</b> ${esc(r.quizTitle)}</p><div class="notice good">Your score has been recorded.</div></div></div><div class="card" style="margin-top:16px"><h2>Answer review</h2>${currentAttempt.result.review.map((x,i)=>{const chosen=x.selected===null?'Not answered':x.q.opts[x.selected]?.text||'';const correct=x.q.opts.find(o=>o.correct)?.text||'';return `<div class="question"><b>Q${i+1}. ${esc(x.q.question)}</b><p>Your answer: ${esc(chosen)}</p><p>Correct answer: <b>${esc(correct)}</b></p><span class="pill">${x.isCorrect?'Correct':x.selected===null?'Unanswered':'Incorrect'}</span></div>`}).join('')}</div>`;$('resultLeaderBtn').onclick=()=>{showView('leaderView');loadSubjectsForLeaderboard(r.subjectId)};$('resultHomeBtn').onclick=()=>{showView('homeView');loadPublishedQuizzes()}}
 
