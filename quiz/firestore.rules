@@ -1,26 +1,54 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+    function signedIn() { return request.auth != null; }
+    function isAdmin() {
+      return signedIn()
+        && exists(/databases/$(database)/documents/admins/$(request.auth.uid))
+        && get(/databases/$(database)/documents/admins/$(request.auth.uid)).data.active == true;
+    }
+
+    // Public classroom configuration.
+    match /subjects/{subjectId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Students may read published quizzes. Admins may manage all quizzes.
     match /quizzes/{quizId} {
-      allow read: if resource.data.status == "active";
-      allow write: if false;
+      allow read: if resource.data.status == 'published' || isAdmin();
+      allow create, update, delete: if isAdmin();
+
       match /questions/{questionId} {
-        allow read: if get(/databases/$(database)/documents/quizzes/$(quizId)).data.status == "active";
-        allow write: if false;
+        allow read: if get(/databases/$(database)/documents/quizzes/$(quizId)).data.status == 'published' || isAdmin();
+        allow create, update, delete: if isAdmin();
       }
     }
-    match /students/{rollNo} {
-      allow read: if false;
-      allow create: if true;
-      allow update, delete: if false;
-    }
+
+    // Student submissions: unauthenticated students can create attempts, but cannot edit/delete them.
+    // Admins can read and manage attempts.
     match /attempts/{attemptId} {
-      allow read: if false;
-      allow create: if true;
-      allow update, delete: if false;
+      allow create: if request.resource.data.name is string
+        && request.resource.data.rollNo is string
+        && request.resource.data.quizId is string
+        && request.resource.data.score is number;
+      allow read: if isAdmin();
+      allow update, delete: if isAdmin();
     }
-    match /faculty/{facultyUid} {
-      allow read, write: if false;
+
+    // Public leaderboard snapshots. Because students have no login, writes cannot be tied to identity.
+    // This is a deliberate Spark-plan tradeoff; do not treat the leaderboard as tamper-proof.
+    match /leaderboards/{subjectId}/students/{studentKey} {
+      allow read: if true;
+      allow create, update: if request.resource.data.name is string
+        && request.resource.data.rollNo is string
+        && request.resource.data.totalScore is number;
+      allow delete: if isAdmin();
+    }
+
+    match /admins/{uid} {
+      allow read: if signedIn() && request.auth.uid == uid;
+      allow write: if isAdmin();
     }
   }
 }
